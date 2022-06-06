@@ -1,0 +1,19 @@
+syntax = "proto3";
+option java_package = "ru.hse";
+
+message CreateOrLoginRequest {
+  string name = 1;
+  string password = 2;
+}
+
+
+message CreateOrLoginResponse {
+  bool success = 1;
+  string comment = 2;
+}
+
+
+service LoginService {
+  rpc login(CreateOrLoginRequest) returns (CreateOrLoginResponse);
+}
+

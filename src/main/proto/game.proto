@@ -1,0 +1,19 @@
+syntax = "proto3";
+option java_package = "ru.hse";
+
+
+message GameState {
+  bool finished = 1;
+  /// etc
+}
+
+
+message PlayerList {
+  repeated Player players = 1;
+}
+
+
+message Player {
+    string login = 1;
+    string color = 2;
+}

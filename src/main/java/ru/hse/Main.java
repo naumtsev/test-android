@@ -11,7 +11,7 @@ public class Main {
 
 
         Services.LoginRequest request = Services.LoginRequest
-                .newBuilder().setName("123").setPassword("test").build();
+                .newBuilder().setName("Danik").setPassword("zdarova").build();
 //
         Services.LoginResponse res = stub.login(request);
 //

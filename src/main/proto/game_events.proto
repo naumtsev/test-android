@@ -12,14 +12,15 @@ message JoinToRoomRequest {
 message RoomEvent {
     oneof event {
         // ROOM EVENTS
-        PlayerJoinedEvent playerJoinedEvent = 1;
-        PlayerDisconnectedEvent playerDisconnectedEvent = 2;
-        JoinStatusEvent roomStateEvent = 3;
+        JoinToRoomResponse joinToRoomResponse = 1;
+        PlayerJoinedEvent playerJoinedEvent = 2;
+        PlayerDisconnectedEvent playerDisconnectedEvent = 3;
 
         // GAME EVENTS
         GameStartedEvent gameStartedEvent = 4;
         GameStateUpdatedEvent gameStateUpdatedEvent = 5;
         GameFinishedEvent gameFinishedEvent = 6;
+        PlayerLostEvent playerLostEvent = 7;
     }
 }
 
@@ -31,7 +32,7 @@ message PlayerDisconnectedEvent {
   string playerLogin = 1;
 }
 
-message JoinStatusEvent {
+message JoinToRoomResponse {
   bool success = 1;
   string comment = 2;
 }
@@ -54,6 +55,6 @@ message PlayerLostEvent { // other player lost
   string playerLogin = 1;
 }
 
-service roomEventsService {
+service GameEventService {
     rpc joinToRoom(JoinToRoomRequest) returns (stream RoomEvent);
 }

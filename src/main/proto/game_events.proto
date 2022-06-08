@@ -3,12 +3,6 @@ option java_package = "ru.hse";
 
 import "game.proto";
 
-message JoinToRoomRequest {
-  string login = 1;
-  string roomName = 2; // if empty string room is public, else it's private
-}
-
-
 message RoomEvent {
     oneof event {
         // ROOM EVENTS
@@ -21,7 +15,25 @@ message RoomEvent {
         GameStateUpdatedEvent gameStateUpdatedEvent = 5;
         GameFinishedEvent gameFinishedEvent = 6;
         PlayerLostEvent playerLostEvent = 7;
+
+        // OTHER EVENTS
+        PingRequest ping = 8;
     }
+}
+
+// нужен, чтобы проверять подключение игроков
+message PingRequest{
+  bool ping = 1;
+}
+
+message JoinToRoomResponse {
+  bool success = 1;
+  string comment = 2;
+}
+
+message JoinToRoomRequest {
+  string login = 1;
+  string roomName = 2; // if empty string room is public, else it's private
 }
 
 message PlayerJoinedEvent {
@@ -30,11 +42,6 @@ message PlayerJoinedEvent {
 
 message PlayerDisconnectedEvent {
   string playerLogin = 1;
-}
-
-message JoinToRoomResponse {
-  bool success = 1;
-  string comment = 2;
 }
 
 message GameStartedEvent {

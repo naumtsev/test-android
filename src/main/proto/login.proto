@@ -6,7 +6,6 @@ message LoginRequest {
   string password = 2;
 }
 
-
 message LoginResponse {
   bool success = 1;
   string comment = 2;
@@ -27,4 +26,3 @@ service AccountService {
   rpc login(LoginRequest) returns (LoginResponse);
   rpc registerAccount(RegisterAccountRequest) returns (RegisterAccountResponse);
 }
-

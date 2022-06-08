@@ -3,17 +3,44 @@ option java_package = "ru.hse";
 
 
 message GameState {
+  // игра закончилась
   bool finished = 1;
-  /// etc
+  // победил он
+  bool win = 2;
+  Player player = 3;
+  GameMap gameMap = 4;
+  PlayerList playerList = 5;
 }
 
+message GameMap {
+  Player player = 1;
+  int32 height  = 2;
+  int32 width   = 3;
+  repeated Block map = 4;
+}
+
+message Block {
+  int32 x = 1;
+  int32 y = 2;
+  bool show = 3;
+  // type:
+  //      "neutral",
+  //      "wall",
+  //      "farm",
+  //      "castle".
+  //      может нужно добавить ещё один тип для show = false
+  string type = 4;
+  Player owner = 5;
+}
 
 message PlayerList {
   repeated Player players = 1;
 }
 
-
 message Player {
-    string login = 1;
-    string color = 2;
+  string login = 1;
+  string color = 2;
+  int32  army = 3;
+  bool   alive = 4;
 }
+

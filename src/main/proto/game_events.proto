@@ -18,10 +18,12 @@ message RoomEvent {
 }
 
 message GameEvent{
-  // GAME EVENTS
-  GameStateUpdatedEvent gameStateUpdatedEvent = 1;
-  GameFinishedEvent gameFinishedEvent = 2;
-  PlayerLostEvent playerLostEvent = 3;
+  oneof event {
+    // GAME EVENTS
+    GameStateUpdatedEvent gameStateUpdatedEvent = 1;
+    GameFinishedEvent gameFinishedEvent = 2;
+    PlayerLostEvent playerLostEvent = 3;
+  }
 }
 
 // нужен, чтобы проверять подключение игроков
@@ -64,10 +66,27 @@ message PlayerLostEvent { // other player lost
   string playerLogin = 1;
 }
 
-// поменять RoomEvent
-service GameEventService {
+service RoomEventService {
     rpc joinToRoom(JoinToRoomRequest) returns (stream RoomEvent);
-    // дописать event
-    rpc moveEvent(JoinToRoomRequest) returns (google.protobuf.Empty);
+    rpc attackBlock(AttackRequest) returns (google.protobuf.Empty);
+    rpc surrender(SurrenderRequest) returns (google.protobuf.Empty);
 }
+
+message AttackRequest{
+  BlockCoordinate start = 1;
+  BlockCoordinate end = 2;
+  bool is50 = 3;
+  Player player = 4;
+}
+
+message SurrenderRequest{
+  string playerLogin = 1;
+}
+
+message BlockCoordinate{
+  int32 x = 1;
+  int32 y = 2;
+}
+
+
 

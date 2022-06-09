@@ -6,7 +6,7 @@ import ru.hse.AccountServiceGrpc;
 import ru.hse.controllers.AccountController;
 import ru.hse.controllers.RoomController;
 import ru.hse.services.AccountService;
-import ru.hse.services.GameEventService;
+import ru.hse.services.RoomEventService;
 
 import java.io.IOException;
 import java.net.Inet4Address;
@@ -19,7 +19,7 @@ public class App {
 
                 ServerBuilder<?> serverBuilder = ServerBuilder.forPort(8080);
                 serverBuilder.addService(new AccountService(accountController));
-                serverBuilder.addService(new GameEventService(roomController));
+                serverBuilder.addService(new RoomEventService(roomController));
 
 
                 Server server = serverBuilder.build();

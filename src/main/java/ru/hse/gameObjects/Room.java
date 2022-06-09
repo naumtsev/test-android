@@ -10,7 +10,7 @@ public class Room {
     private final String roomName;
     private final int maxCountPlayers;
 
-    private PlayersController playersController = new PlayersController();
+    private PlayersController playersController = new   PlayersController();
 
     public Room(String roomName, int maxCountPlayers){
         this.roomName = roomName;

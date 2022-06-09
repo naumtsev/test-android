@@ -2,35 +2,51 @@ syntax = "proto3";
 option java_package = "ru.hse";
 
 
-message GameState {
-  // игра закончилась
-  bool finished = 1;
-  // победил он
-  bool win = 2;
-  Player player = 3;
-  GameMap gameMap = 4;
-  PlayerList playerList = 5;
+message GameStateResponse {
+  enum GameState {
+    IN_PROGRESS = 0;
+    FINISHED = 1;
+  }
+  GameState gameState = 1;
+  Player player = 2;
+  GameMap gameMap = 3;
+  PlayerList playerList = 4;
 }
 
 message GameMap {
-  Player player = 1;
-  int32 height  = 2;
-  int32 width   = 3;
-  repeated Block map = 4;
+  int32 height = 1;
+  int32 width = 2;
+  repeated Block blocks = 3;
 }
 
 message Block {
   int32 x = 1;
   int32 y = 2;
-  bool show = 3;
-  // type:
-  //      "neutral",
-  //      "wall",
-  //      "farm",
-  //      "castle".
-  //      может нужно добавить ещё один тип для show = false
-  string type = 4;
-  Player owner = 5;
+  bool  isHidden = 3;
+  oneof block {
+    EmptyBlock emptyBlock = 5;
+    WallBlock wallBlock = 6;
+    FarmBlock farmBlock = 7;
+    CastleBlock castleBlock = 8;
+  }
+}
+
+message EmptyBlock{
+  optional Player owner = 4;
+  int32 countArmy = 5;
+}
+
+message WallBlock{
+}
+
+message FarmBlock{
+  optional Player owner = 4;
+  int32 countArmy = 5;
+}
+
+message CastleBlock{
+  Player owner = 4;
+  int32 countArmy = 5;
 }
 
 message PlayerList {
@@ -40,7 +56,7 @@ message PlayerList {
 message Player {
   string login = 1;
   string color = 2;
-  int32  army = 3;
-  bool   alive = 4;
+  int32  countArmy = 3;
+  bool   isAlive = 4;
 }
 

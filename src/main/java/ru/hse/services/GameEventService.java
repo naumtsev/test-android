@@ -34,4 +34,9 @@ public class GameEventService extends GameEventServiceGrpc.GameEventServiceImplB
 
         roomController.joinToRoom(playerLogin, roomName, clientEventStream);
     }
+
+    @Override
+    public void moveEvent(GameEvents.JoinToRoomRequest request, StreamObserver<GameEvents.RoomEvent> responseObserver) {
+        super.moveEvent(request, responseObserver);
+    }
 }

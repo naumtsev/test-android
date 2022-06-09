@@ -2,23 +2,26 @@ syntax = "proto3";
 option java_package = "ru.hse";
 
 import "game.proto";
+import "google/protobuf/empty.proto";
 
 message RoomEvent {
     oneof event {
         // ROOM EVENTS
         JoinToRoomResponse joinToRoomResponse = 1;
-        PlayerJoinedEvent playerJoinedEvent = 2;
-        PlayerDisconnectedEvent playerDisconnectedEvent = 3;
-
-        // GAME EVENTS
+        OtherPlayerJoinedEvent otherPlayerJoinedEvent = 2;
+        OtherPlayerDisconnectedEvent otherPlayerDisconnectedEvent = 3;
         GameStartedEvent gameStartedEvent = 4;
-        GameStateUpdatedEvent gameStateUpdatedEvent = 5;
-        GameFinishedEvent gameFinishedEvent = 6;
-        PlayerLostEvent playerLostEvent = 7;
 
         // OTHER EVENTS
-        PingRequest ping = 8;
+        PingRequest ping = 5;
     }
+}
+
+message GameEvent{
+  // GAME EVENTS
+  GameStateUpdatedEvent gameStateUpdatedEvent = 1;
+  GameFinishedEvent gameFinishedEvent = 2;
+  PlayerLostEvent playerLostEvent = 3;
 }
 
 // нужен, чтобы проверять подключение игроков
@@ -36,22 +39,21 @@ message JoinToRoomRequest {
   string roomName = 2; // if empty string room is public, else it's private
 }
 
-message PlayerJoinedEvent {
+message OtherPlayerJoinedEvent {
   string playerLogin = 1;
 }
 
-message PlayerDisconnectedEvent {
+message OtherPlayerDisconnectedEvent {
   string playerLogin = 1;
 }
 
 message GameStartedEvent {
-  GameState gameState = 1;
-  PlayerList players = 2;
+  string gameId = 1;
+  GameStateResponse gameState = 2;
 }
 
-
 message GameStateUpdatedEvent {
-  GameState gameState = 1;
+  GameStateResponse gameState = 1;
 }
 
 message GameFinishedEvent {
@@ -62,6 +64,10 @@ message PlayerLostEvent { // other player lost
   string playerLogin = 1;
 }
 
+// поменять RoomEvent
 service GameEventService {
     rpc joinToRoom(JoinToRoomRequest) returns (stream RoomEvent);
+    // дописать event
+    rpc moveEvent(JoinToRoomRequest) returns (google.protobuf.Empty);
 }
+

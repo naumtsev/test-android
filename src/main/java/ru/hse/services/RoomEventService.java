@@ -43,6 +43,8 @@ public class RoomEventService extends RoomEventServiceGrpc.RoomEventServiceImplB
             }
             // создаём игру с gameController
             String gameId = generateString();
+            // передаем количество игроков и потом карту
+            createdGames.put(gameId, new GameController(room.getCountPlayersWaiting()));
 
             // присылаем им запросы на присоединение
             GameEvents.GameStartedEvent.Builder res = GameEvents.GameStartedEvent.newBuilder();
@@ -50,6 +52,11 @@ public class RoomEventService extends RoomEventServiceGrpc.RoomEventServiceImplB
             var r = GameEvents.RoomEvent.newBuilder().setGameStartedEvent(res.build());
             playersController.sendEventToAllPlayers(r);
         }
+    }
+
+    @Override
+    public void joinToGame(GameEvents.JoinToGameRequest request, StreamObserver<GameEvents.GameEvent> responseObserver) {
+        super.joinToGame(request, responseObserver);
     }
 
     @Override

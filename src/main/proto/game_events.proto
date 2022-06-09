@@ -51,7 +51,6 @@ message OtherPlayerDisconnectedEvent {
 
 message GameStartedEvent {
   string gameId = 1;
-  GameStateResponse gameState = 2;
 }
 
 message GameStateUpdatedEvent {
@@ -68,8 +67,14 @@ message PlayerLostEvent { // other player lost
 
 service RoomEventService {
     rpc joinToRoom(JoinToRoomRequest) returns (stream RoomEvent);
+    rpc joinToGame(JoinToGameRequest) returns (stream GameEvent);
     rpc attackBlock(AttackRequest) returns (google.protobuf.Empty);
     rpc surrender(SurrenderRequest) returns (google.protobuf.Empty);
+}
+
+message JoinToGameRequest {
+  string login = 1;
+  string gameId = 2;
 }
 
 message AttackRequest{

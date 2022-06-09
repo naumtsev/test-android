@@ -6,23 +6,28 @@ import ru.hse.GameEvents;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class PlayersController {
-    private int countPlayesWaiting = 0;
+    private int countPlayes = 0;
     private ConcurrentHashMap<String, StreamObserver<GameEvents.RoomEvent>> playersObservers = new ConcurrentHashMap<>();
 
     public PlayersController(){
     }
 
-    public int getCountPlayesWaiting(){
-        return countPlayesWaiting;
+    public int getCountPlayes(){
+        return countPlayes;
+    }
+
+    public Set<String> getPlayers(){
+        return playersObservers.keySet();
     }
 
     public synchronized boolean addPlayer(String playerName, StreamObserver<GameEvents.RoomEvent> streamObserver){
         if(playersObservers.containsKey(playerName)) {
             playersObservers.put(playerName, streamObserver);
-            ++countPlayesWaiting;
+            ++countPlayes;
             return true;
         }
         return false;
@@ -31,7 +36,7 @@ public class PlayersController {
     public synchronized boolean deletePlayer(String playerName){
         if(playersObservers.containsKey(playerName)){
             playersObservers.remove(playerName);
-            --countPlayesWaiting;
+            --countPlayes;
             return true;
         }
         return false;

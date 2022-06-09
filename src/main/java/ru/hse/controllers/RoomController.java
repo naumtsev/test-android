@@ -3,6 +3,7 @@ package ru.hse.controllers;
 import io.grpc.stub.StreamObserver;
 import ru.hse.GameEvents;
 import ru.hse.gameObjects.Room;
+import ru.hse.services.RoomEventService;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,8 +21,12 @@ public class RoomController {
         createPublicRoom(MAX_COUNT_PLAYERS);
     }
 
-    public void joinToRoom(String playerLogin, String roomName, StreamObserver<GameEvents.RoomEvent> clientEventStream) {
+    // Пустая строка: никакая игра не была создана
+    // Непустая строка: какая-то игра сформирована, нужно её создать
+
+    public String joinToRoom(String playerLogin, String roomName, StreamObserver<GameEvents.RoomEvent> clientEventStream) {
         // общая комната или приватная
+        String nameToBeCreatedGame = "";
         if(roomName.equals("")){
             // тут не нужно ничего проверять, т.к. комнаты сразу отсоединяем
             if(createdRooms.get(publicRoomName).fullRoom()){
@@ -34,8 +39,6 @@ public class RoomController {
                 waitingPlayers.put(playerLogin, publicRoomName);
             }
 
-            // TODO: отсоединяем комнату
-
         } else {
             // добавляем игрока
             if(!createdRooms.containsKey(roomName)){
@@ -43,6 +46,11 @@ public class RoomController {
             }
             createdRooms.get(roomName).addPlayer(playerLogin, clientEventStream);
             waitingPlayers.put(playerLogin, roomName);
+        }
+
+        // сохраняем имя игры, которую нужно будет создать
+        if(createdRooms.get(publicRoomName).getCountPlayersWaiting() == MAX_COUNT_PLAYERS){
+            nameToBeCreatedGame = publicRoomName;
         }
 
         try {
@@ -59,6 +67,16 @@ public class RoomController {
         // при каждом подключении игроков, слать запрос всем пользователям и проверять, что они подключены
         pingAllWaitingPlayers();
         deleteEmptyRooms();
+
+        return nameToBeCreatedGame;
+    }
+
+    public ConcurrentHashMap<String, Room> getCreatedRooms(){
+        return createdRooms;
+    }
+
+    public ConcurrentHashMap<String, String> getWaitingPlayers(){
+        return waitingPlayers;
     }
 
     // проверяем, что игроки всё ещё присоединены к комнате
@@ -76,24 +94,8 @@ public class RoomController {
     }
 
     private void createPublicRoom(int countPlayers){
-        publicRoomName = generateString();
+        publicRoomName = RoomEventService.generateString();
         createdRooms.put(publicRoomName, new Room(publicRoomName, countPlayers));
-    }
-    private String generateString(){
-        int leftLimit = 48; // numeral '0'
-        int rightLimit = 122; // letter 'z'
-        int targetStringLength = 10;
-        Random random = new Random();
-
-        String generatedString = random.ints(leftLimit, rightLimit + 1)
-                .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
-                .limit(targetStringLength)
-                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
-                .toString();
-
-        System.out.println(generatedString);
-
-        return generatedString;
     }
 
     // метод, который удаляет комнаты, если в них уже нет игроков

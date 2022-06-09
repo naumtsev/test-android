@@ -10,7 +10,7 @@ public class Room {
     private final String roomName;
     private final int maxCountPlayers;
 
-    private PlayersController playersController = new   PlayersController();
+    private PlayersController playersController = new PlayersController();
 
     public Room(String roomName, int maxCountPlayers){
         this.roomName = roomName;
@@ -21,7 +21,7 @@ public class Room {
         return roomName;
     }
     public int getCountPlayersWaiting(){
-        return playersController.getCountPlayesWaiting();
+        return playersController.getCountPlayes();
     }
 
     public boolean fullRoom(){
@@ -42,5 +42,9 @@ public class Room {
             deletePlayer(playerName);
         }
         return disconnectPlayers;
+    }
+
+    public PlayersController getPlayersController(){
+        return playersController;
     }
 }

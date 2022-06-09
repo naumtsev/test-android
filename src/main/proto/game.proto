@@ -16,7 +16,11 @@ message GameStateResponse {
 message GameMap {
   int32 height = 1;
   int32 width = 2;
-  repeated Block blocks = 3;
+  BlockList blockList = 3;
+}
+
+message BlockList {
+  repeated Block block = 1;
 }
 
 message Block {
@@ -50,7 +54,7 @@ message CastleBlock{
 }
 
 message PlayerList {
-  repeated Player players = 1;
+  repeated Player player = 1;
 }
 
 message Player {

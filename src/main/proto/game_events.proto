@@ -54,7 +54,7 @@ message GameStartedEvent {
 }
 
 message GameStateUpdatedEvent {
-  GameStateResponse gameState = 1;
+  GameStateResponse gameStateResponse = 1;
 }
 
 message GameFinishedEvent {
@@ -70,6 +70,7 @@ service RoomEventService {
     rpc joinToGame(JoinToGameRequest) returns (stream GameEvent);
     rpc attackBlock(AttackRequest) returns (google.protobuf.Empty);
     rpc surrender(SurrenderRequest) returns (google.protobuf.Empty);
+    rpc getGameMap(GetGameMap) returns (stream GameStateUpdatedEvent);
 }
 
 message JoinToGameRequest {
@@ -93,5 +94,11 @@ message BlockCoordinate{
   int32 y = 2;
 }
 
+// --------------
+message GetGameMap{
+  int32 height = 1;
+  int32 width  = 2;
+  int32 countPlayer = 3;
+}
 
 

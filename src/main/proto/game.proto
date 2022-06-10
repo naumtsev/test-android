@@ -61,6 +61,7 @@ message Player {
   string login = 1;
   string color = 2;
   int32  countArmy = 3;
-  bool   isAlive = 4;
+  int32  countPlace = 4;
+  bool   isAlive = 5;
 }
 

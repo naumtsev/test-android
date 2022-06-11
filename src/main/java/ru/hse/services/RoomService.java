@@ -45,6 +45,17 @@ public class RoomService extends RoomServiceGrpc.RoomServiceImplBase {
                 responseObserver.onCompleted();
             }
 
+            if (roomController.isFilled()) {
+                // create new Game
+
+                String gameID = "GameID123";
+                Room.GameStartedEvent response = Room.GameStartedEvent.newBuilder().setGameId(gameID).build();
+                Room.RoomEvent responseEvent = Room.RoomEvent.newBuilder().setGameStartedEvent(response).build();
+                roomController.broadcast(responseEvent);
+
+                roomController.disconnectAllPlayers();
+            }
+
 
         } finally {
             lock.unlock();
@@ -76,7 +87,7 @@ public class RoomService extends RoomServiceGrpc.RoomServiceImplBase {
 
     private void createRoom(String roomName, boolean roomIsPublic) {
         createdRooms.add(roomName);
-        rooms.put(roomName, new RoomController(roomName, 2));
+        rooms.put(roomName, new RoomController(roomName, 4));
 
         if (roomIsPublic) {
             publicRooms.add(roomName);
@@ -86,4 +97,7 @@ public class RoomService extends RoomServiceGrpc.RoomServiceImplBase {
     private static String generateRoomName() {
         return UUID.randomUUID().toString();
     }
+
+
+
 }

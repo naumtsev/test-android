@@ -9,7 +9,6 @@ import ru.hse.services.AccountService;
 public class testAccount {
 
     public static void main(String[] args) {
-        System.out.println("WRITE BEGIN\n\n");
         ManagedChannel channel = ManagedChannelBuilder.forAddress("172.18.0.1", 8080)
                 .usePlaintext()
                 .build();

@@ -1,5 +1,6 @@
 package ru.hse.controllers;
 
+import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import org.checkerframework.checker.nullness.compatqual.NonNullType;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -25,15 +26,21 @@ public class RoomController {
         return joinedPlayers.size();
     }
 
-    public synchronized boolean joinPlayer(String playerLogin, StreamObserver<Room.RoomEvent> playerEventStream) {
+    public boolean joinPlayer(String playerLogin, StreamObserver<Room.RoomEvent> playerEventStream) {
+
+        ServerCallStreamObserver<Room.RoomEvent> servEventStream = (ServerCallStreamObserver<Room.RoomEvent>) playerEventStream;
+        servEventStream.setOnCloseHandler(new Runnable() {
+            @Override
+            public void run() {
+                onPlayerError(playerLogin);
+            }
+        });
+
+
         StreamObserver<Room.RoomEvent> eventStream = new StreamObserver<Room.RoomEvent>() {
             @Override
             public void onNext(Room.RoomEvent value) {
-                try {
-                    playerEventStream.onNext(value);
-                } catch (Exception e) {
-                    onError(e);
-                }
+                playerEventStream.onNext(value);
             }
             @Override
             public void onError(Throwable t) {
@@ -50,8 +57,9 @@ public class RoomController {
         Room.RoomEvent event = Room.RoomEvent.newBuilder().setOtherPlayerJoinedEvent(joinEvent).build();
         broadcast(event);
 
-        joinedPlayers.add(new PlayerWithIO(playerLogin, eventStream));
-
+        synchronized (joinedPlayers) {
+            joinedPlayers.add(new PlayerWithIO(playerLogin, eventStream));
+        }
 
         // Send JoinResponse
         Room.JoinToRoomResponse response = Room.JoinToRoomResponse.newBuilder().setRoomPlayers(getRoomPlayers()).setSuccess(true).build();
@@ -65,8 +73,10 @@ public class RoomController {
         return roomName;
     }
     public void broadcast(Room.RoomEvent roomEvent) {
-        for (var playerWithIO: joinedPlayers) {
-            playerWithIO.getEventStream().onNext(roomEvent);
+        synchronized(joinedPlayers) {
+            for (var playerWithIO : joinedPlayers) {
+                playerWithIO.getEventStream().onNext(roomEvent);
+            }
         }
     }
 
@@ -82,9 +92,11 @@ public class RoomController {
 
     private Room.RoomPlayers getRoomPlayers() {
         Room.RoomPlayers.Builder roomPlayersBuilder = Room.RoomPlayers.newBuilder();
-        joinedPlayers.forEach(playerWithIO ->  {
-            roomPlayersBuilder.addPlayerLogin(playerWithIO.getLogin());
-        });
+        synchronized(joinedPlayers) {
+            joinedPlayers.forEach(playerWithIO -> {
+                roomPlayersBuilder.addPlayerLogin(playerWithIO.getLogin());
+            });
+        }
 
         return roomPlayersBuilder.build();
     }
@@ -109,10 +121,16 @@ public class RoomController {
     }
 
     public Optional<PlayerWithIO> getPlayerWithIO(String playerLogin) {
-        return joinedPlayers.stream().filter(playerWithIO -> playerWithIO.getLogin().equals(playerLogin)).findFirst();
+        synchronized (joinedPlayers) {
+            return joinedPlayers.stream().filter(playerWithIO -> playerWithIO.getLogin().equals(playerLogin)).findFirst();
+        }
     }
 
-
-
+    public void disconnectAllPlayers() {
+        synchronized (joinedPlayers) {
+            joinedPlayers.forEach(playerWithIO -> playerWithIO.getEventStream().onCompleted());
+            joinedPlayers.clear();
+        }
+    }
 }
 

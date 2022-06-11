@@ -14,7 +14,6 @@ public class LoggerInterceptor implements ServerInterceptor {
     public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers, ServerCallHandler<ReqT, RespT> next) {
         String time = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).toString();
         String methodName = call.getMethodDescriptor().getFullMethodName();
-
         System.out.println(time + ": " + methodName);
         return next.startCall(call, headers);
     }

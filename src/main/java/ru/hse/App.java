@@ -1,23 +1,26 @@
 package ru.hse;
 
 import com.google.gson.Gson;
-import io.grpc.Server;
-import io.grpc.ServerBuilder;
+import io.grpc.*;
 import ru.hse.controllers.GameController;
 import ru.hse.gameObjects.*;
 import ru.hse.services.AccountService;
 import ru.hse.services.LoggerInterceptor;
 import ru.hse.services.RoomService;
 
+import javax.annotation.Nullable;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.Inet4Address;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 public class App {
         public static void main(String[] args) throws IOException, InterruptedException {
                 ServerBuilder<?> serverBuilder = ServerBuilder.forPort(8080);
+                serverBuilder.keepAliveTime(500, TimeUnit.MILLISECONDS);
+
                 serverBuilder.intercept(new LoggerInterceptor());
                 serverBuilder.addService(new AccountService());
                 serverBuilder.addService(new RoomService());

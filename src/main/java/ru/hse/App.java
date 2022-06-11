@@ -1,18 +1,13 @@
 package ru.hse;
 
-import com.google.gson.Gson;
 import io.grpc.*;
-import ru.hse.controllers.GameController;
+import ru.hse.gameObjects.GameSmth;
 import ru.hse.gameObjects.*;
 import ru.hse.services.AccountService;
 import ru.hse.services.LoggerInterceptor;
 import ru.hse.services.RoomService;
 
-import javax.annotation.Nullable;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.net.Inet4Address;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
@@ -52,7 +47,7 @@ public class App {
                 for(int i = 0; i < 2; i++){
                         users.add(new User(Integer.toString(i), "BLACK"));
                 }
-                GameController newGameController = new GameController(20, 15,  2, users);
+                GameSmth newGameController = new GameSmth(20, 15,  2, users);
                 newGameController.getGameMapForUser(new User("1", "BLACK"));
 
 

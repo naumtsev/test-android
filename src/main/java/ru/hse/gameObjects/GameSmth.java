@@ -1,4 +1,4 @@
-package ru.hse.controllers;
+package ru.hse.gameObjects;
 
 import com.google.gson.Gson;
 import ru.hse.gameObjects.*;
@@ -8,14 +8,13 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.Random;
 
-public class GameController {
+public class GameSmth {
     GameMap gameMap;
     ArrayList<User> users;
     ArrayList<LinkedList<Attack>> movesUsers = new ArrayList<>();
 
-    public GameController(int height, int width, int countCastles, ArrayList<User> users) {
+    public GameSmth(int height, int width, int countCastles, ArrayList<User> users) {
         gameMap = new GameMap(height, width, countCastles, users);
         this.users = users;
     }
@@ -137,6 +136,7 @@ public class GameController {
                             && ((CapturedBlock) map.get(x + 1).get(y + 1)).getUser().equals(user)) {
                         haveNearbyUserBlock = true;
                     }
+
                     if (haveNearbyUserBlock) {
                         if (map.get(x).get(y).getClass().equals(SimpleDrawableBlock.class)) {
                             arrayDrawingMap.get(x).add(new DrawingBlock(x, y, true, DrawingBlock.Type.Neutral));

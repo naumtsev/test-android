@@ -1,5 +1,7 @@
 package ru.hse.services;
 
+import io.grpc.Server;
+import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
 import ru.hse.Room;
 import ru.hse.RoomServiceGrpc;
@@ -9,6 +11,7 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -35,6 +38,7 @@ public class RoomService extends RoomServiceGrpc.RoomServiceImplBase {
             }
 
             RoomController roomController = rooms.get(roomName);
+
             boolean joined = roomController.joinPlayer(playerLogin, responseObserver);
 
             if (!joined) {
@@ -46,14 +50,29 @@ public class RoomService extends RoomServiceGrpc.RoomServiceImplBase {
             }
 
             if (roomController.isFilled()) {
-                // create new Game
+                ServerBuilder<?> gameServerBuilder = ServerBuilder.forPort(0);
+                gameServerBuilder.keepAliveTime(500, TimeUnit.MILLISECONDS);
+                gameServerBuilder.addService(new GameService());
 
-                String gameID = "GameID123";
+                Server gameServer = gameServerBuilder.build();
+
+                try {
+                    gameServer.start();
+                } catch (Exception ignored) {
+                    System.out.println("Error creating server");
+                }
+
+
+                String gameID = String.valueOf(gameServer.getPort());
+
                 Room.GameStartedEvent response = Room.GameStartedEvent.newBuilder().setGameId(gameID).build();
                 Room.RoomEvent responseEvent = Room.RoomEvent.newBuilder().setGameStartedEvent(response).build();
                 roomController.broadcast(responseEvent);
-
                 roomController.disconnectAllPlayers();
+
+                rooms.remove(roomName);
+                publicRooms.remove(roomName);
+                createdRooms.remove(roomName);
             }
 
 

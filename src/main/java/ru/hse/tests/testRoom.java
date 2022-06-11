@@ -16,7 +16,7 @@ public class testRoom {
 
         RoomServiceGrpc.RoomServiceBlockingStub stub = RoomServiceGrpc.newBlockingStub(channel);
 
-        Room.JoinToRoomRequest req  = Room.JoinToRoomRequest.newBuilder().setRoomName("").build();
+        Room.JoinToRoomRequest req  = Room.JoinToRoomRequest.newBuilder().setLogin("testUser").setRoomName("").build();
 
         Iterator<Room.RoomEvent> eventStream = stub.joinToRoom(req);
         eventStream.forEachRemaining(ev -> {

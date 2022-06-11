@@ -32,15 +32,29 @@ public class RoomController {
         servEventStream.setOnCloseHandler(new Runnable() {
             @Override
             public void run() {
+                System.out.println("Player Disconnect");
+                onPlayerError(playerLogin);
+            }
+        });
+
+        servEventStream.setOnCancelHandler(new Runnable() {
+            @Override
+            public void run() {
+                System.out.println("Player Canceled");
                 onPlayerError(playerLogin);
             }
         });
 
 
+
         StreamObserver<Room.RoomEvent> eventStream = new StreamObserver<Room.RoomEvent>() {
             @Override
             public void onNext(Room.RoomEvent value) {
-                playerEventStream.onNext(value);
+                try {
+                    playerEventStream.onNext(value);
+                } catch (Exception e) {
+                    onError(e);
+                }
             }
             @Override
             public void onError(Throwable t) {

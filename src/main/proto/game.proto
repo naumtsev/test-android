@@ -31,7 +31,6 @@ message PlayerLostEvent {
   string playerLogin = 1;
 }
 
-
 message AttackRequest{
   BlockCoordinate start = 1;
   BlockCoordinate end = 2;

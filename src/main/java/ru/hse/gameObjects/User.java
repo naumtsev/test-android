@@ -1,5 +1,9 @@
 package ru.hse.gameObjects;
 
+import ru.hse.GameObject;
+import ru.hse.objects.Pair;
+
+import java.util.LinkedList;
 import java.util.Objects;
 
 public class User {
@@ -14,6 +18,8 @@ public class User {
     private int countArmy = 1;
     private int countPlace = 1;
     private boolean isAlive = true;
+
+    private LinkedList<Attack> steps = new LinkedList<>();
 
     public User(String login, String color){
         this.login = login;
@@ -40,7 +46,7 @@ public class User {
         return isAlive;
     }
 
-    public void userIsDead(){
+    public void userDead(){
         isAlive = false;
     }
 
@@ -64,6 +70,20 @@ public class User {
         countPlace += addOrDeleteCountPlace;
     }
 
+    public void addStep(Pair start, Pair end, boolean is50){
+        steps.addLast(new Attack(start, end, is50));
+    }
+    public boolean haveStep(){
+        return !steps.isEmpty();
+    }
+    public Attack getStep(){
+        return steps.getFirst();
+    }
+
+    public Attack removeStep(){
+        return steps.removeFirst();
+    }
+
 
     @Override
     public boolean equals(Object o) {
@@ -76,5 +96,22 @@ public class User {
     @Override
     public int hashCode() {
         return Objects.hash(login, color, countArmy);
+    }
+
+    public GameObject.Player toProtobufPlayer(){
+        GameObject.Player.Builder player = GameObject.Player.newBuilder();
+        player.setLogin(login);
+        player.setColor(color);
+        return player.build();
+    }
+    public GameObject.GamePlayerInfo toProtobufGamePlayerInfo(){
+        GameObject.GamePlayerInfo.Builder gamePlayerInfo = GameObject.GamePlayerInfo.newBuilder();
+
+        gamePlayerInfo.setPlayer(toProtobufPlayer());
+        gamePlayerInfo.setCountArmy(countArmy);
+        gamePlayerInfo.setCountLand(countPlace);
+        gamePlayerInfo.setAlive(isAlive);
+
+        return gamePlayerInfo.build();
     }
 }

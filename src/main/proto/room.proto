@@ -1,6 +1,7 @@
 syntax = "proto3";
 option java_package = "ru.hse";
 
+import "game_object.proto";
 
 message RoomEvent {
   oneof event {
@@ -14,13 +15,9 @@ message RoomEvent {
 message JoinToRoomResponse {
   bool success = 1;
   string comment = 2;
-  RoomPlayers roomPlayers = 3;
+  repeated Player player = 3;
 }
 
-
-message RoomPlayers {
-  repeated string playerLogin = 1;
-}
 
 message JoinToRoomRequest {
   string login = 1;

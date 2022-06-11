@@ -2,7 +2,9 @@ package ru.hse;
 
 import io.grpc.*;
 import ru.hse.gameObjects.GameSmth;
-import ru.hse.gameObjects.*;
+import ru.hse.gameObjects.generateGameMap.*;
+import ru.hse.gameObjects.GameMap;
+import ru.hse.gameObjects.User;
 import ru.hse.services.AccountService;
 import ru.hse.services.LoggerInterceptor;
 import ru.hse.services.RoomService;
@@ -12,32 +14,32 @@ import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 public class App {
+//        public static void main(String[] args) throws IOException, InterruptedException {
+//                ServerBuilder<?> serverBuilder = ServerBuilder.forPort(8080);
+//                serverBuilder.keepAliveTime(500, TimeUnit.MILLISECONDS);
+//
+//                serverBuilder.intercept(new LoggerInterceptor());
+//                serverBuilder.addService(new AccountService());
+//                serverBuilder.addService(new RoomService());
+//
+//                Server server = serverBuilder.build();
+//                server.start();
+//
+//
+//                Runtime.getRuntime().addShutdownHook(new Thread(server::shutdownNow));
+//
+//                String ipAddresses = IpUtil.resolveIPAddresses();
+//
+//                System.out.println("Server started listening on port " + server.getPort());
+//                System.out.println("Server IPs: " + ipAddresses);
+//
+//                server.awaitTermination();
+//        }
+
+
+
+
         public static void main(String[] args) throws IOException, InterruptedException {
-                ServerBuilder<?> serverBuilder = ServerBuilder.forPort(8080);
-                serverBuilder.keepAliveTime(500, TimeUnit.MILLISECONDS);
-
-                serverBuilder.intercept(new LoggerInterceptor());
-                serverBuilder.addService(new AccountService());
-                serverBuilder.addService(new RoomService());
-
-                Server server = serverBuilder.build();
-                server.start();
-
-
-                Runtime.getRuntime().addShutdownHook(new Thread(server::shutdownNow));
-
-                String ipAddresses = IpUtil.resolveIPAddresses();
-
-                System.out.println("Server started listening on port " + server.getPort());
-                System.out.println("Server IPs: " + ipAddresses);
-
-                server.awaitTermination();
-        }
-
-
-
-
-        public void debug() {
                 //        MapCreater creater = new MapCreater();
                 //        int width = 15;
                 //        int height = 15;
@@ -47,11 +49,11 @@ public class App {
                 for(int i = 0; i < 2; i++){
                         users.add(new User(Integer.toString(i), "BLACK"));
                 }
-                GameSmth newGameController = new GameSmth(20, 15,  2, users);
-                newGameController.getGameMapForUser(new User("1", "BLACK"));
+//                GameSmth newGameController = new GameSmth(20, 15,  2, users);
+//                newGameController.getGameMapForUser(new User("1", "BLACK"));
 
 
-                GameMap gameMap = newGameController.getGameMap();
+                GameMap gameMap = new GameMap(20, 20, users);
                 ArrayList<ArrayList<Block>> array = gameMap.getGameMap();
                 int countWalls = 0;
                 int countFarm = 0;
@@ -85,5 +87,11 @@ public class App {
                 System.out.println("Count Walls: "  + countWalls);
                 System.out.println("Count Farm: "   + countFarm);
                 System.out.println("Count Castle: " + countCastle + "\n");
+        }
+
+
+
+        static public void test1(GameMap gameMap){
+
         }
 }

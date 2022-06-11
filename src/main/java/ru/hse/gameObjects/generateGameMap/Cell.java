@@ -1,4 +1,4 @@
-package ru.hse.gameObjects;
+package ru.hse.gameObjects.generateGameMap;
 
 public class Cell {
     // добавить поле, которое будет отвечать за id игрока, которые владеет данной клеткой (изначально отрицательно)

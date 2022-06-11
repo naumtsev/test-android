@@ -3,13 +3,11 @@ package ru.hse;
 import com.google.gson.Gson;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
-import ru.hse.AccountServiceGrpc;
-import ru.hse.controllers.AccountController;
 import ru.hse.controllers.GameController;
-import ru.hse.controllers.RoomController;
 import ru.hse.gameObjects.*;
 import ru.hse.services.AccountService;
-import ru.hse.services.RoomEventService;
+import ru.hse.services.LoggerInterceptor;
+import ru.hse.services.RoomService;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -19,6 +17,29 @@ import java.util.ArrayList;
 
 public class App {
         public static void main(String[] args) throws IOException, InterruptedException {
+                ServerBuilder<?> serverBuilder = ServerBuilder.forPort(8080);
+                serverBuilder.intercept(new LoggerInterceptor());
+                serverBuilder.addService(new AccountService());
+                serverBuilder.addService(new RoomService());
+
+                Server server = serverBuilder.build();
+                server.start();
+
+
+                Runtime.getRuntime().addShutdownHook(new Thread(server::shutdownNow));
+
+                String ipAddresses = IpUtil.resolveIPAddresses();
+
+                System.out.println("Server started listening on port " + server.getPort());
+                System.out.println("Server IPs: " + ipAddresses);
+
+                server.awaitTermination();
+        }
+
+
+
+
+        public void debug() {
                 //        MapCreater creater = new MapCreater();
                 //        int width = 15;
                 //        int height = 15;
@@ -35,8 +56,8 @@ public class App {
                 GameMap gameMap = newGameController.getGameMap();
                 ArrayList<ArrayList<Block>> array = gameMap.getGameMap();
                 int countWalls = 0;
-                int countFarm  = 0;
-                int countCastle= 0;
+                int countFarm = 0;
+                int countCastle = 0;
                 for(int x = 0; x < gameMap.getHeight(); x++) {
                         for (int y = 0; y < gameMap.getWidth(); y++) {
                                 Class<?> type = array.get(x).get(y).getClass();
@@ -66,78 +87,5 @@ public class App {
                 System.out.println("Count Walls: "  + countWalls);
                 System.out.println("Count Farm: "   + countFarm);
                 System.out.println("Count Castle: " + countCastle + "\n");
-
-                testGson();
         }
-
-        static public void testGson(){
-                Gson gson = new Gson();
-
-//        // прикольно, он null элемент вообще не записывает
-//        DrawingBlock drawingBlock = new DrawingBlock(1, 1, true);
-//        String json = gson.toJson(drawingBlock);
-//
-//        System.out.println(json);
-//
-//        DrawingBlock drawingBlock1 = gson.fromJson(json, DrawingBlock.class);
-//        System.out.println(drawingBlock1.getX() + " " + drawingBlock1.getY() + " " + drawingBlock1.isDraw() + " " + drawingBlock1.getType());
-
-//        try(FileWriter writer = new FileWriter("map.json")){
-//            int width = 5;
-//            int height = 5;
-//            ArrayList<ArrayList<DrawingBlock>> map = new ArrayList<>();
-//            for(int x = 0; x < width; x++){
-//                map.add(new ArrayList<DrawingBlock>());
-//                for(int y = 0; y < height; y++){
-//                    map.get(x).add(new DrawingBlock(x, y, false));
-//                }
-//            }
-//
-//            User user = new User(1000, User.Color.BLACK);
-//            DrawingMap drawingMap = new DrawingMap(user, height, width, map);
-//            writer.write(gson.toJson(drawingMap));
-//            writer.close();
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
-
-                try(FileReader reader = new FileReader("map1.json")){
-                        DrawingMap map = gson.fromJson(reader, DrawingMap.class);
-//            System.out.println(gson.toJson(map));
-                        ArrayList<ArrayList<DrawingBlock>> drawingMap = map.getMap();
-
-                        System.out.println(gson.toJson(map.getUser()));
-                        System.out.println(gson.toJson(map.getHeight()));
-                        System.out.println(gson.toJson(map.getWidth()));
-
-                        for(int x = 0; x < map.getHeight(); x++){
-                                for(int y = 0; y < map.getWidth(); y++){
-                                        System.out.print(gson.toJson(drawingMap.get(x).get(y)) + " ");
-                                }
-                                System.out.print("\n");
-                        }
-                } catch (FileNotFoundException e) {
-                        throw new RuntimeException(e);
-                } catch (IOException e) {
-                        throw new RuntimeException(e);
-                }
-        }
-
-// SERVER START:
-//                AccountController accountController = new AccountController();
-//                RoomController roomController = new RoomController();
-//
-//
-//                ServerBuilder<?> serverBuilder = ServerBuilder.forPort(8080);
-//                serverBuilder.addService(new AccountService(accountController));
-//                serverBuilder.addService(new RoomEventService(roomController));
-//
-//
-//                Server server = serverBuilder.build();
-//                server.start();
-//
-//                System.out.println("Server started on port " + server.getPort());
-//                System.out.println("Server ip: " + Inet4Address.getLocalHost().getHostAddress());
-//
-//                server.awaitTermination();
 }

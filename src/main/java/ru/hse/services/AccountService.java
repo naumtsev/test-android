@@ -2,8 +2,7 @@ package ru.hse.services;
 
 import io.grpc.stub.StreamObserver;
 import ru.hse.AccountServiceGrpc;
-import ru.hse.Login;
-import ru.hse.controllers.AccountController;
+import ru.hse.Account;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
@@ -11,14 +10,13 @@ import java.util.regex.Pattern;
 public class AccountService extends AccountServiceGrpc.AccountServiceImplBase {
     private final ConcurrentHashMap<String, String> accounts = new ConcurrentHashMap<>();
 
-    public AccountService(AccountController accountController) {
+    public AccountService() {
         super();
-
     }
 
     @Override
-    public void login(Login.LoginRequest request, StreamObserver<Login.LoginResponse> responseObserver) {
-        Login.LoginResponse.Builder response = Login.LoginResponse.newBuilder();
+    public void login(Account.LoginRequest request, StreamObserver<Account.LoginResponse> responseObserver) {
+        Account.LoginResponse.Builder response = Account.LoginResponse.newBuilder();
         String password = accounts.getOrDefault(request.getLogin(), null);
         if (password == null) {
             response.setSuccess(false).setComment("Account is not found");
@@ -32,14 +30,14 @@ public class AccountService extends AccountServiceGrpc.AccountServiceImplBase {
     }
 
     @Override
-    public void registerAccount(Login.RegisterAccountRequest request, StreamObserver<Login.RegisterAccountResponse> responseObserver) {
-        Login.RegisterAccountResponse.Builder response = Login.RegisterAccountResponse.newBuilder();
+    public void registerAccount(Account.RegisterAccountRequest request, StreamObserver<Account.RegisterAccountResponse> responseObserver) {
+        Account.RegisterAccountResponse.Builder response = Account.RegisterAccountResponse.newBuilder();
 
         String password = accounts.getOrDefault(request.getLogin(), null);
 
         if (password != null) {
             response.setSuccess(false).setComment("Account with the same login exists");
-        } else if (Pattern.matches("/^[A-Za-z0-9]\\w{3,}$/", request.getPassword())) {
+        } else if (Pattern.matches("^[A-Za-z0-9]{3,}$", request.getPassword())) {
             accounts.computeIfAbsent(request.getLogin(), (x) -> {
                 response.setSuccess(true);
                 return request.getPassword();

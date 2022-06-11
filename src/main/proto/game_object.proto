@@ -1,0 +1,68 @@
+syntax = "proto3";
+option java_package = "ru.hse";
+
+
+message GameStateResponse {
+  enum GameState {
+    IN_PROGRESS = 0;
+    FINISHED = 1;
+  }
+
+  GameState gameState = 1;
+  Player player = 2;
+  GameMap gameMap = 3;
+  PlayerList playerList = 4;
+}
+
+message GameMap {
+  int32 height = 1;
+  int32 width = 2;
+  BlockList blockList = 3;
+}
+
+message BlockList {
+  repeated Block block = 1;
+}
+
+message Block {
+  int32 x = 1;
+  int32 y = 2;
+  bool hidden = 3;
+  oneof block {
+    EmptyBlock emptyBlock = 5;
+    WallBlock wallBlock = 6;
+    FarmBlock farmBlock = 7;
+    CastleBlock castleBlock = 8;
+  }
+}
+
+message EmptyBlock {
+  optional Player owner = 1;
+  int32 countArmy = 2;
+}
+
+message WallBlock {
+}
+
+message FarmBlock {
+  optional Player owner = 1;
+  int32 countArmy = 2;
+}
+
+message CastleBlock {
+  Player owner = 1;
+  int32 countArmy = 2;
+}
+
+message PlayerList {
+  repeated Player player = 1;
+}
+
+message Player {
+  string login = 1;
+  string color = 2;
+  int32 countArmy = 3;
+  int32 countLand = 4;
+  bool alive = 5;
+}
+

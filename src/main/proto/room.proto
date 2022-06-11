@@ -1,0 +1,44 @@
+syntax = "proto3";
+option java_package = "ru.hse";
+
+
+message RoomEvent {
+  oneof event {
+    JoinToRoomResponse joinToRoomResponse = 1;
+    OtherPlayerJoinedEvent otherPlayerJoinedEvent = 2;
+    OtherPlayerDisconnectedEvent otherPlayerDisconnectedEvent = 3;
+    GameStartedEvent gameStartedEvent = 4;
+  }
+}
+
+message JoinToRoomResponse {
+  bool success = 1;
+  string comment = 2;
+  RoomPlayers roomPlayers = 3;
+}
+
+
+message RoomPlayers {
+  repeated string playerLogin = 1;
+}
+
+message JoinToRoomRequest {
+  string login = 1;
+  string roomName = 2;
+}
+
+message OtherPlayerJoinedEvent {
+  string playerLogin = 1;
+}
+
+message OtherPlayerDisconnectedEvent {
+  string playerLogin = 1;
+}
+
+message GameStartedEvent {
+  string gameId = 1;
+}
+
+service RoomService {
+  rpc joinToRoom(JoinToRoomRequest) returns (stream RoomEvent);
+}

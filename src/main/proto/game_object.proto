@@ -11,7 +11,7 @@ message GameStateResponse {
   GameState gameState = 1;
   Player player = 2;
   GameMap gameMap = 3;
-  PlayerList playerList = 4;
+  repeated GamePlayerInfo gamePlayerInfo = 4;
 }
 
 message GameMap {
@@ -54,15 +54,14 @@ message CastleBlock {
   int32 countArmy = 2;
 }
 
-message PlayerList {
-  repeated Player player = 1;
-}
-
 message Player {
   string login = 1;
   string color = 2;
-  int32 countArmy = 3;
-  int32 countLand = 4;
-  bool alive = 5;
 }
 
+message GamePlayerInfo {
+  Player player = 1;
+  int32 countArmy = 2;
+  int32 countLand = 3;
+  bool alive = 4;
+}

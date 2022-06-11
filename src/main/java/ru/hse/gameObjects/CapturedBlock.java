@@ -34,10 +34,6 @@ public class CapturedBlock extends Block {
         countArmy = otherArmy;
     }
 
-    void setBackround(Color newBackground){
-        background = newBackground;
-    }
-
     public boolean isFree(){
         return user == null;
     }

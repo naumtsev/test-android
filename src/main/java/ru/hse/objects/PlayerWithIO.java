@@ -1,23 +1,23 @@
 package ru.hse.objects;
 
 import io.grpc.stub.StreamObserver;
+import ru.hse.GameObject;
 import ru.hse.Room;
 
-public class PlayerWithIO {
-    String login;
-    StreamObserver<Room.RoomEvent> eventStream;
-
-    public PlayerWithIO(String playerLogin, StreamObserver<Room.RoomEvent> playerEventStream) {
-        this.login = playerLogin;
+public  class PlayerWithIO<T> {
+    StreamObserver<T> eventStream;
+    GameObject.Player player;
+    public PlayerWithIO(GameObject.Player player, StreamObserver<T> playerEventStream) {
+        this.player = player;
         this.eventStream = playerEventStream;
     }
 
 
-    public StreamObserver<Room.RoomEvent> getEventStream() {
+    public StreamObserver<T> getEventStream() {
         return eventStream;
     }
 
-    public String getLogin() {
-        return login;
+    public GameObject.Player getPlayer() {
+        return player;
     }
 }

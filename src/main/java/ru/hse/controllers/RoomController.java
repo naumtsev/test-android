@@ -2,18 +2,24 @@ package ru.hse.controllers;
 
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
-import org.checkerframework.checker.nullness.compatqual.NonNullType;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import ru.hse.GameObject;
 import ru.hse.Room;
 import ru.hse.objects.PlayerWithIO;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 public class RoomController {
-    private final ArrayList<PlayerWithIO> joinedPlayers = new ArrayList<PlayerWithIO>();
+    private final ArrayList<PlayerWithIO<Room.RoomEvent>> joinedPlayers = new ArrayList<PlayerWithIO<Room.RoomEvent>>();
 
+    private final ArrayList<String> freeColors = new ArrayList<>(
+                                            Arrays.asList("#D51216", "#4361D9", "#087B02",
+                                                          "#01847F", "#F98434", "#F92BE5",
+                                                          "#7E0181", "#830101", "#B39E2B",
+                                                          "#9A602E", "#0100fB", "#483E83"));
     private final String roomName;
     private final int numberPlayersToStart;
 
@@ -22,8 +28,10 @@ public class RoomController {
         this.numberPlayersToStart = numberPlayersToStart;
     }
 
-    public synchronized int getJoinedPlayersCount() {
-        return joinedPlayers.size();
+    public int getJoinedPlayersCount() {
+        synchronized (joinedPlayers) {
+            return joinedPlayers.size();
+        }
     }
 
     public boolean joinPlayer(String playerLogin, StreamObserver<Room.RoomEvent> playerEventStream) {
@@ -32,10 +40,12 @@ public class RoomController {
         servEventStream.setOnCloseHandler(new Runnable() {
             @Override
             public void run() {
-                System.out.println("Player Disconnect");
+                System.out.println("Player Close");
                 onPlayerError(playerLogin);
             }
         });
+
+        System.out.println("TEST CONN1");
 
         servEventStream.setOnCancelHandler(new Runnable() {
             @Override
@@ -50,14 +60,11 @@ public class RoomController {
         StreamObserver<Room.RoomEvent> eventStream = new StreamObserver<Room.RoomEvent>() {
             @Override
             public void onNext(Room.RoomEvent value) {
-                try {
-                    playerEventStream.onNext(value);
-                } catch (Exception e) {
-                    onError(e);
-                }
+                playerEventStream.onNext(value);
             }
             @Override
             public void onError(Throwable t) {
+                playerEventStream.onError(t);
                 onPlayerError(playerLogin);
             }
             @Override
@@ -67,18 +74,24 @@ public class RoomController {
         };
 
         // Send JoinEvent
-        Room.OtherPlayerJoinedEvent joinEvent = Room.OtherPlayerJoinedEvent.newBuilder().setPlayerLogin(playerLogin).build();
+        String color = getFreeColor();
+        GameObject.Player player = GameObject.Player.newBuilder().setColor(color).setLogin(playerLogin).build();
+
+        Room.OtherPlayerJoinedEvent joinEvent = Room.OtherPlayerJoinedEvent.newBuilder().setPlayer(player).build();
         Room.RoomEvent event = Room.RoomEvent.newBuilder().setOtherPlayerJoinedEvent(joinEvent).build();
         broadcast(event);
 
-        synchronized (joinedPlayers) {
-            joinedPlayers.add(new PlayerWithIO(playerLogin, eventStream));
-        }
+        System.out.println("TEST CONN2");
 
+        synchronized (joinedPlayers) {
+            joinedPlayers.add(new PlayerWithIO<Room.RoomEvent>(player, eventStream));
+        }
+    
         // Send JoinResponse
-        Room.JoinToRoomResponse response = Room.JoinToRoomResponse.newBuilder().setRoomPlayers(getRoomPlayers()).setSuccess(true).build();
+        Room.JoinToRoomResponse response = Room.JoinToRoomResponse.newBuilder().setNumberPlayersToStart(numberPlayersToStart).addAllPlayer(getRoomPlayers()).setSuccess(true).build();
         Room.RoomEvent responseEvent = Room.RoomEvent.newBuilder().setJoinToRoomResponse(response).build();
         eventStream.onNext(responseEvent);
+        System.out.println("TEST CONN3");
 
         return true;
     }
@@ -104,28 +117,33 @@ public class RoomController {
         }
     }
 
-    private Room.RoomPlayers getRoomPlayers() {
-        Room.RoomPlayers.Builder roomPlayersBuilder = Room.RoomPlayers.newBuilder();
+    private List<GameObject.Player> getRoomPlayers() {
+        List<GameObject.Player> playerList = new ArrayList<>();
         synchronized(joinedPlayers) {
             joinedPlayers.forEach(playerWithIO -> {
-                roomPlayersBuilder.addPlayerLogin(playerWithIO.getLogin());
+                playerList.add(playerWithIO.getPlayer());
             });
         }
 
-        return roomPlayersBuilder.build();
+        return playerList;
     }
 
     private void disconnectPlayer(String playerLogin, boolean onError) {
         synchronized (joinedPlayers) {
-            Optional<PlayerWithIO> optionalPlayerWithIO = getPlayerWithIO(playerLogin);
+            Optional<PlayerWithIO<Room.RoomEvent>> optionalPlayerWithIO = getPlayerWithIO(playerLogin);
             if (optionalPlayerWithIO.isPresent()) {
-                PlayerWithIO playerWithIO = optionalPlayerWithIO.get();
+                PlayerWithIO<Room.RoomEvent> playerWithIO = optionalPlayerWithIO.get();
 
                 if (!onError) {
-                   playerWithIO.getEventStream().onCompleted();
-                }
+                    try {
+                        playerWithIO.getEventStream().onCompleted();
+                    } catch (Exception ignored) {
 
+                    }
+                }
+                freeColors.add(0, playerWithIO.getPlayer().getColor());
                 joinedPlayers.remove(playerWithIO);
+
             }
         }
 
@@ -134,9 +152,9 @@ public class RoomController {
         broadcast(Room.RoomEvent.newBuilder().setOtherPlayerDisconnectedEvent(event).build());
     }
 
-    public Optional<PlayerWithIO> getPlayerWithIO(String playerLogin) {
+    public Optional<PlayerWithIO<Room.RoomEvent>> getPlayerWithIO(String playerLogin) {
         synchronized (joinedPlayers) {
-            return joinedPlayers.stream().filter(playerWithIO -> playerWithIO.getLogin().equals(playerLogin)).findFirst();
+            return joinedPlayers.stream().filter(playerWithIO -> playerWithIO.getPlayer().getLogin().equals(playerLogin)).findFirst();
         }
     }
 
@@ -144,6 +162,18 @@ public class RoomController {
         synchronized (joinedPlayers) {
             joinedPlayers.forEach(playerWithIO -> playerWithIO.getEventStream().onCompleted());
             joinedPlayers.clear();
+        }
+    }
+
+    public String getFreeColor() {
+        synchronized (freeColors) {
+            if (freeColors.isEmpty()) {
+                return "#FF1864";
+            } else {
+                String color = freeColors.get(0);
+                freeColors.remove(color);
+                return color;
+            }
         }
     }
 }

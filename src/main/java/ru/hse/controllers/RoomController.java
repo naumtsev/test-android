@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class RoomController {
     private final ArrayList<PlayerWithIO<Room.RoomEvent>> joinedPlayers = new ArrayList<PlayerWithIO<Room.RoomEvent>>();
@@ -155,6 +156,12 @@ public class RoomController {
     public Optional<PlayerWithIO<Room.RoomEvent>> getPlayerWithIO(String playerLogin) {
         synchronized (joinedPlayers) {
             return joinedPlayers.stream().filter(playerWithIO -> playerWithIO.getPlayer().getLogin().equals(playerLogin)).findFirst();
+        }
+    }
+
+    public List<GameObject.Player> getPlayers() {
+        synchronized (joinedPlayers) {
+            return joinedPlayers.stream().map(PlayerWithIO::getPlayer).collect(Collectors.toList());
         }
     }
 

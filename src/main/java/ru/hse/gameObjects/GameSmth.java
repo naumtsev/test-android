@@ -11,6 +11,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class GameSmth implements Runnable {
@@ -18,7 +19,7 @@ public class GameSmth implements Runnable {
     GameMap gameMap;
     ArrayList<User> users;
 
-    public GameSmth(int height, int width, ArrayList<GameObject.Player> players) {
+    public GameSmth(int height, int width, List<GameObject.Player> players) {
         ArrayList<User> users = new ArrayList<>();
         for(int i = 0; i < players.size(); i++){
             GameObject.Player player = players.get(i);

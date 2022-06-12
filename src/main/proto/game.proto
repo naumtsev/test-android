@@ -38,14 +38,24 @@ message AttackRequest{
   Player player = 4;
 }
 
-message SurrenderRequest {
-  string playerLogin = 1;
+message AttacksResponce {
+  repeated AttackResponce attack = 1;
+}
+
+message AttackResponce {
+  BlockCoordinate start = 1;
+  BlockCoordinate end = 2;
 }
 
 message BlockCoordinate {
   int32 x = 1;
   int32 y = 2;
 }
+
+message SurrenderRequest {
+  string playerLogin = 1;
+}
+
 
 message generateGameStateRequest {
   int32 height = 1;

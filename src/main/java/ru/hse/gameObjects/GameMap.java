@@ -59,20 +59,8 @@ public class GameMap {
 
 
     private void giveCastlesToUsers(){
-        ArrayList<String> colors = new ArrayList<>();
-        colors.add("#DC143C");
-        colors.add("#1E90FF");
-        colors.add("#2E8B57");
-        colors.add("#FFFF00");
-        colors.add("#8B4513");
-        colors.add("#696969");
-        colors.add("#663399");
-
         int i = 0;
         for(Pair castle : castlesInMap){
-//            System.out.println(users.get(i).getLogin());
-            users.get(i).setColor(colors.get(i));
-//            System.out.println(users.get(i).getColor());
             ((CastleBlock)gameMap.get(castle.getX()).get(castle.getY())).setUser(users.get(i++));
         }
     }

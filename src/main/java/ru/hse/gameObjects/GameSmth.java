@@ -70,8 +70,8 @@ public class GameSmth implements Runnable {
             }
 
             makeStep();
-            for(int i = 0; i < users.size(); i++){
-
+            for(User user : users){
+                sendMapToPlayer(user.getLogin(), getGameStateForPlayer(user.getLogin()));
             }
 
             try {
@@ -112,14 +112,31 @@ public class GameSmth implements Runnable {
         return gameStateResponce.build();
     }
 
+    private void sendAttacksToPlayer(String login, Game.AttacksResponce gameStateResponse){
+
+    }
+
+    private Game.AttacksResponce getAttacksToPlayer(String login){
+        for(User user : users){
+            if(user.getLogin().equals(login)){
+                Game.AttacksResponce.Builder attacks = Game.AttacksResponce.newBuilder();
+                for(Attack attack : user.getSteps()){
+                    attacks.addAttack(attack.toProtobuf());
+                }
+                return attacks.build();
+            }
+        }
+        return null; // никогда сюда не дойдёт, если запрос корректный
+    }
+
 
     private void makeStep(){
         gameMap.nextTick();
 
-        for(int i = 0; i < users.size(); i++){
-            User user = users.get(i);
+        for(User user : users){
             makeStepForPlayer(user);
         }
+        // users.forEach(this::makeStepForPlayer);
     }
 
     private void makeStepForPlayer(User user){
@@ -135,15 +152,5 @@ public class GameSmth implements Runnable {
             }
         }
     }
-
-    public GameMap getFullMap(){
-        int count = (int)(Math.random() * 1000);
-        while(0 < count){
-            count--;
-            gameMap.nextTick();
-        }
-        return gameMap;
-    }
-
 
 }

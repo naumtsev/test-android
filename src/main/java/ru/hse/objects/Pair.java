@@ -1,5 +1,8 @@
 package ru.hse.objects;
 
+import ru.hse.Game;
+import ru.hse.GameObject;
+
 public class Pair {
     private int x;
     private int y;
@@ -23,5 +26,12 @@ public class Pair {
 
     public void setY(int y) {
         this.y = y;
+    }
+
+    public Game.BlockCoordinate toProtobuf(){
+        Game.BlockCoordinate.Builder pair = Game.BlockCoordinate.newBuilder();
+        pair.setX(x);
+        pair.setY(y);
+        return pair.build();
     }
 }

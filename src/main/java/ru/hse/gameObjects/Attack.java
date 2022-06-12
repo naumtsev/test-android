@@ -1,5 +1,7 @@
 package ru.hse.gameObjects;
 
+import ru.hse.Game;
+import ru.hse.GameObject;
 import ru.hse.objects.Pair;
 
 public class Attack {
@@ -23,5 +25,14 @@ public class Attack {
 
     public boolean isIs50() {
         return is50;
+    }
+
+    public Game.AttackResponce toProtobuf(){
+        Game.AttackResponce.Builder attack = Game.AttackResponce.newBuilder();
+
+        attack.setStart(start.toProtobuf());
+        attack.setEnd(end.toProtobuf());
+
+        return attack.build();
     }
 }

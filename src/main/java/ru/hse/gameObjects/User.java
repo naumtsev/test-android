@@ -3,16 +3,11 @@ package ru.hse.gameObjects;
 import ru.hse.GameObject;
 import ru.hse.objects.Pair;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Objects;
 
 public class User {
-    public enum Color{
-        WHITE,
-        BLACK,
-        YELLOW,
-        GREEN,
-    }
     private final String login;
     private String color;
     private int countArmy = 1;
@@ -82,6 +77,14 @@ public class User {
 
     public Attack removeStep(){
         return steps.removeFirst();
+    }
+
+    public ArrayList<Attack> getSteps(){
+        ArrayList<Attack> attacks = new ArrayList<>();
+        for(Attack attack : steps){
+            attacks.add(attack);
+        }
+        return attacks;
     }
 
 

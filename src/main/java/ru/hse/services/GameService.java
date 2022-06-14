@@ -8,9 +8,7 @@ import ru.hse.Game;
 import ru.hse.GameObject;
 import ru.hse.GameServiceGrpc;
 import ru.hse.controllers.GameController;
-import ru.hse.objects.PlayerWithIO;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,7 +17,7 @@ public class GameService extends GameServiceGrpc.GameServiceImplBase {
     private Server server;
     List<GameObject.Player> players;
     public GameService(int height, int width, List<GameObject.Player> players) {
-        this.gameController = new GameController(height, width, players);
+        this.gameController = new GameController(height, width, players, this::onFinish);
         this.players = players;
     }
 
@@ -48,6 +46,10 @@ public class GameService extends GameServiceGrpc.GameServiceImplBase {
     }
 
     public void surrender(Game.SurrenderRequest request, StreamObserver<Empty> responseObserver) {
-        gameController.gs
+        gameController.makePlayerLeave(request.getPlayerLogin());
+    }
+
+    public void onFinish() {
+        server.shutdownNow();
     }
 }

@@ -17,11 +17,17 @@ import java.util.Optional;
 public class GameController implements Runnable {
     boolean running = false;
     private final ArrayList<PlayerWithIO<Game.GameEvent>> joinedPlayers = new ArrayList<PlayerWithIO<Game.GameEvent>>();
+    private final ArrayList<GameObject.Player> players;
 
     GameMap gameMap;
     ArrayList<User> users;
 
-    public GameController(int height, int width, List<GameObject.Player> players) {
+    Runnable onFinish;
+
+    Boolean wasStarted = false;
+
+    public GameController(int height, int width, List<GameObject.Player> players, Runnable onFinish) {
+        this.onFinish = onFinish;
         ArrayList<User> users = new ArrayList<>();
         for(int i = 0; i < players.size(); i++){
             GameObject.Player player = players.get(i);
@@ -30,6 +36,8 @@ public class GameController implements Runnable {
 
         gameMap = new GameMap(height, width, users);
         this.users = users;
+
+        this.players = (ArrayList<GameObject.Player>) players;
     }
 
     public GameMap getGameMap() {
@@ -43,7 +51,9 @@ public class GameController implements Runnable {
         for (int i = 0; i < users.size(); i++) {
             User user = users.get(i);
             if (user.isAlive() && user.getLogin().equals(player.getLogin())) {
-                user.addStep(startPair, endPair, is50);
+                synchronized (users.get(i)) {
+                    user.addStep(startPair, endPair, is50);
+                }
             }
         }
     }
@@ -85,11 +95,11 @@ public class GameController implements Runnable {
 
         synchronized (wasStarted) {
             if (!wasStarted) {
-                Thread thread = new Thread(gameController);
+                wasStarted = true;
+                Thread thread = new Thread(this);
                 thread.start();
             }
         }
-
 
     }
 
@@ -98,7 +108,9 @@ public class GameController implements Runnable {
         for(int i = 0; i < users.size(); i++) {
             User user = users.get(i);
             if(user.getLogin().equals(login)){
-                gameMap.capturedCastle(null, user);
+                synchronized (users.get(i)) {
+                    gameMap.capturedCastle(null, user);
+                }
             }
         }
     }
@@ -124,29 +136,29 @@ public class GameController implements Runnable {
         while (running) {
 
             makeStep();
-            for (int i = 0; i < users.size(); i++){
 
+            for (int i = 0; i < users.size(); i++) {
+                User user = users.get(i);
+                synchronized (users.get(i)) {
+                    sendEventToPlayer(user.getLogin(), getGameStateForPlayer(user.getLogin()));
+                }
             }
 
             try {
                 Thread.sleep(1000);
             } catch (Exception ignored) {
+
             }
 
-
-            if (gameMap.getCountAliveCastels() == 1) {
+            if (gameMap.getCountAliveCastels() <= 1) {
                 running = false;
             }
         }
+        onFinish.run();
         // отослать всем responce, что игра завершилась
     }
 
-
-    private void sendMapToPlayer(String login, GameObject.GameStateResponse gameStateResponse){
-
-    }
-
-    private GameObject.GameStateResponse getGameStateForPlayer(String login){
+    private Game.GameEvent getGameStateForPlayer(String login){
         GameObject.GameStateResponse.Builder gameStateResponce = GameObject.GameStateResponse.newBuilder();
 
         if(running) {
@@ -167,42 +179,41 @@ public class GameController implements Runnable {
             gameStateResponce.addGamePlayerInfo(user.toProtobufGamePlayerInfo());
         }
 
-        return gameStateResponce.build();
+        Game.GameEvent.Builder gameEvent = Game.GameEvent.newBuilder();
+        gameEvent.setGameStateResponse(gameStateResponce.build());
+
+        return gameEvent.build();
     }
 
 
     private void makeStep(){
         gameMap.nextTick();
 
+
+//        users.forEach(this::makeStepForPlayer);
         for(int i = 0; i < users.size(); i++){
             User user = users.get(i);
-            makeStepForPlayer(user);
-        }
-    }
-
-    private void makeStepForPlayer(User user){
-        while((user.isAlive() && !user.haveStep())) {
-            Attack attack = user.removeStep();
-            if (!gameMap.attack(attack.getStart(), attack.getEnd(), attack.isIs50())) {
-                Pair endPosition = attack.getEnd();
-                while (user.haveStep() && endPosition.equals(user.getStep().getStart())) {
-                    endPosition = user.removeStep().getEnd();
-                }
-            } else {
-                break;
+            synchronized (users.get(i)) {
+                makeStepForPlayer(user);
             }
         }
     }
 
-    public GameMap getFullMap(){
-        int count = (int)(Math.random() * 1000);
-        while(0 < count){
-            count--;
-            gameMap.nextTick();
-        }
-        return gameMap;
+    private void makeStepForPlayer(User user){
+//        synchronized (user) { // ругается
+            while ((user.isAlive() && !user.haveStep())) {
+                Attack attack = user.removeStep();
+                if (!gameMap.attack(attack.getStart(), attack.getEnd(), attack.isIs50())) {
+                    Pair endPosition = attack.getEnd();
+                    while (user.haveStep() && endPosition.equals(user.getStep().getStart())) {
+                        endPosition = user.removeStep().getEnd();
+                    }
+                } else {
+                    break;
+                }
+            }
+//        }
     }
-
     public void broadcast(Game.GameEvent event) {
         synchronized (joinedPlayers) {
             for (var playerWithIO: joinedPlayers) {
@@ -223,13 +234,9 @@ public class GameController implements Runnable {
         return false;
     }
 
-
-
     private void onPlayerError(String playerLogin) {
         disconnectPlayer(playerLogin, true);
     }
-
-
 
     private void disconnectPlayer(String playerLogin, boolean onError) {
         synchronized (joinedPlayers) {
@@ -245,7 +252,6 @@ public class GameController implements Runnable {
                     }
                 }
                 joinedPlayers.remove(playerWithIO);
-
             }
         }
 

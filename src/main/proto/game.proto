@@ -7,20 +7,15 @@ import "google/protobuf/empty.proto";
 
 message GameEvent {
   oneof event {
-    GameStateUpdatedEvent gameStateUpdatedEvent = 1;
+    GameStateResponse gameStateResponse = 1;
     GameFinishedEvent gameFinishedEvent = 2;
     PlayerLostEvent playerLostEvent = 3;
   }
 }
 
-
 message JoinToGameRequest {
   string login = 1;
   string gameId = 2;
-}
-
-message GameStateUpdatedEvent {
-  GameStateResponse gameStateResponse = 1;
 }
 
 message GameFinishedEvent {

@@ -59,20 +59,8 @@ public class GameMap {
 
 
     private void giveCastlesToUsers(){
-        ArrayList<String> colors = new ArrayList<>();
-        colors.add("#DC143C");
-        colors.add("#1E90FF");
-        colors.add("#2E8B57");
-        colors.add("#FFFF00");
-        colors.add("#8B4513");
-        colors.add("#696969");
-        colors.add("#663399");
-
         int i = 0;
         for(Pair castle : castlesInMap){
-//            System.out.println(users.get(i).getLogin());
-            users.get(i).setColor(colors.get(i));
-//            System.out.println(users.get(i).getColor());
             ((CastleBlock)gameMap.get(castle.getX()).get(castle.getY())).setUser(users.get(i++));
         }
     }
@@ -178,30 +166,7 @@ public class GameMap {
                 }
             }
         }
-
-//        updateCountArmyAndPlaces();
     }
-
-//    private void updateCountArmyAndPlaces(){
-//        for (int i = 0; i < users.size(); i++) {
-//            users.get(i).setCountArmy(0);
-//            users.get(i).setCountPlace(0);
-//        }
-//
-//        for(int x = 0; x < height; x++){
-//            for(int y = 0; y < width; y++){
-//                if(gameMap.get(x).get(y) instanceof CapturedBlock) {
-//                    for (int i = 0; i < users.size(); i++) {
-//                        if (((CapturedBlock)gameMap.get(x).get(y)).getUser().getLogin() == users.get(i).getLogin()){
-//                            users.get(i).addOrDeleteArmy(((CapturedBlock) gameMap.get(x).get(y)).getCountArmy());
-//                            users.get(i).addOrDeletePlace(1);
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
-
 
     public GameObject.GameMap toProtobufForPlayer(String login){
         GameObject.GameMap.Builder protobufGameMap = GameObject.GameMap.newBuilder();

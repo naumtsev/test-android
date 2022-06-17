@@ -69,7 +69,7 @@ public class RoomService extends RoomServiceGrpc.RoomServiceImplBase {
 
 
                 String gameID = String.valueOf(gameServer.getPort());
-
+                System.out.println("GAME " +  gameID + " started");
                 Room.GameStartedEvent response = Room.GameStartedEvent.newBuilder().setGameId(gameID).build();
                 Room.RoomEvent responseEvent = Room.RoomEvent.newBuilder().setGameStartedEvent(response).build();
                 roomController.broadcast(responseEvent);
@@ -111,7 +111,7 @@ public class RoomService extends RoomServiceGrpc.RoomServiceImplBase {
 
     private void createRoom(String roomName, boolean roomIsPublic) {
         createdRooms.add(roomName);
-        rooms.put(roomName, new RoomController(roomName, 4));
+        rooms.put(roomName, new RoomController(roomName, 2));
 
         if (roomIsPublic) {
             publicRooms.add(roomName);

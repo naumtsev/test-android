@@ -201,7 +201,7 @@ public class GameController implements Runnable {
 
     private void makeStepForPlayer(User user){
 //        synchronized (user) { // ругается
-            while ((user.isAlive() && !user.haveStep())) {
+            while ((user.isAlive() && user.haveStep())) {
                 Attack attack = user.removeStep();
                 if (!gameMap.attack(attack.getStart(), attack.getEnd(), attack.isIs50())) {
                     Pair endPosition = attack.getEnd();

@@ -14,7 +14,9 @@ public class SimpleDrawableBlock extends CapturedBlock {
         GameObject.EmptyBlock.Builder blockInBlock = GameObject.EmptyBlock.newBuilder();
 
         blockInBlock.setCountArmy(countArmy);
-        blockInBlock.setOwner(user.toProtobufPlayer());
+        if(user != null) {
+            blockInBlock.setOwner(user.toProtobufPlayer());
+        }
 
         block.setEmptyBlock(blockInBlock.build());
 

@@ -15,7 +15,9 @@ public class CastleBlock extends CapturedBlock {
         GameObject.CastleBlock.Builder blockInBlock = GameObject.CastleBlock.newBuilder();
 
         blockInBlock.setCountArmy(countArmy);
-        blockInBlock.setOwner(user.toProtobufPlayer());
+        if(user != null) {
+            blockInBlock.setOwner(user.toProtobufPlayer());
+        }
 
         block.setCastleBlock(blockInBlock.build());
 

@@ -26,8 +26,9 @@ public class FarmBlock extends CapturedBlock {
         GameObject.FarmBlock.Builder blockInBlock = GameObject.FarmBlock.newBuilder();
 
         blockInBlock.setCountArmy(countArmy);
-        blockInBlock.setOwner(user.toProtobufPlayer());
-
+        if(user != null) {
+            blockInBlock.setOwner(user.toProtobufPlayer());
+        }
         block.setFarmBlock(blockInBlock.build());
 
         return block.build();

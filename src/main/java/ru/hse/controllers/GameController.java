@@ -11,16 +11,17 @@ import ru.hse.objects.Pair;
 import ru.hse.objects.PlayerWithIO;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 public class GameController implements Runnable {
     boolean running = false;
-    private final ArrayList<PlayerWithIO<Game.GameEvent>> joinedPlayers = new ArrayList<PlayerWithIO<Game.GameEvent>>();
-    private final ArrayList<GameObject.Player> players;
+    private final List<PlayerWithIO<Game.GameEvent>> joinedPlayers = new ArrayList<PlayerWithIO<Game.GameEvent>>();
+    private final List<GameObject.Player> players;
 
     GameMap gameMap;
-    ArrayList<User> users;
+    final ArrayList<User> users;
 
     Runnable onFinish;
 
@@ -28,7 +29,7 @@ public class GameController implements Runnable {
 
     public GameController(int height, int width, List<GameObject.Player> players, Runnable onFinish) {
         this.onFinish = onFinish;
-        ArrayList<User> users = new ArrayList<>();
+        ArrayList<User> users = new ArrayList<User>();
         for(int i = 0; i < players.size(); i++){
             GameObject.Player player = players.get(i);
             users.add(new User(player.getLogin(), player.getColor()));
@@ -37,7 +38,7 @@ public class GameController implements Runnable {
         gameMap = new GameMap(height, width, users);
         this.users = users;
 
-        this.players = (ArrayList<GameObject.Player>) players;
+        this.players = players;
     }
 
     public GameMap getGameMap() {
@@ -51,8 +52,10 @@ public class GameController implements Runnable {
         for (int i = 0; i < users.size(); i++) {
             User user = users.get(i);
             if (user.isAlive() && user.getLogin().equals(player.getLogin())) {
-                synchronized (users.get(i)) {
-                    user.addStep(startPair, endPair, is50);
+                synchronized (users) {
+//                    synchronized (users.get(i)) {
+                        user.addStep(startPair, endPair, is50);
+//                    }
                 }
             }
         }
@@ -92,6 +95,8 @@ public class GameController implements Runnable {
         synchronized (joinedPlayers) {
             joinedPlayers.add(new PlayerWithIO<Game.GameEvent>(playerOptional.get(), eventStream));
         }
+
+        System.out.println("Joined player: " + playerLogin);
 
         synchronized (wasStarted) {
             if (!wasStarted) {
@@ -139,8 +144,11 @@ public class GameController implements Runnable {
 
             for (int i = 0; i < users.size(); i++) {
                 User user = users.get(i);
-                synchronized (users.get(i)) {
+//                synchronized (user) {
+                synchronized (users){
+                    System.out.println("Send state to " + user.getLogin());
                     sendEventToPlayer(user.getLogin(), getGameStateForPlayer(user.getLogin()));
+//                }
                 }
             }
 
@@ -226,6 +234,7 @@ public class GameController implements Runnable {
         synchronized (joinedPlayers) {
             for (var playerWithIO: joinedPlayers) {
                 if (playerWithIO.getPlayer().getLogin().equals(playerLogin)) {
+                    System.out.println("Sent event to player(sendEventToPLayer): " + playerLogin);
                     playerWithIO.getEventStream().onNext(event);
                     return true;
                 }

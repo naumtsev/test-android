@@ -217,14 +217,15 @@ public class GameMap {
             int changeY = changeCoordinate.get(i).getY();
             int newX = x + changeX;
             int newY = y + changeY;
-            Block block = gameMap.get(newX).get(newY);
-            if(
-                    0 <= newX && newX < height &&
-                            0 <= newY && newY < width &&
-                            block instanceof CapturedBlock &&
-                            ((CapturedBlock)block).getUser().getLogin().equals(login)
-            ){
-                return false;
+//            Block block = gameMap.get(newX).get(newY);
+            if(0 <= newX && newX < height && 0 <= newY && newY < width){
+                Block block = gameMap.get(newX).get(newY);
+                if(block instanceof CapturedBlock){
+                    User user = (((CapturedBlock)block).getUser());
+                    if(user != null && user.getLogin().equals(login)){
+                        return false;
+                    }
+                }
             }
         }
         return true;

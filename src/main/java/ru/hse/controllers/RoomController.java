@@ -46,7 +46,6 @@ public class RoomController {
             }
         });
 
-        System.out.println("TEST CONN1");
 
         servEventStream.setOnCancelHandler(new Runnable() {
             @Override
@@ -82,8 +81,6 @@ public class RoomController {
         Room.RoomEvent event = Room.RoomEvent.newBuilder().setOtherPlayerJoinedEvent(joinEvent).build();
         broadcast(event);
 
-        System.out.println("TEST CONN2");
-
         synchronized (joinedPlayers) {
             joinedPlayers.add(new PlayerWithIO<Room.RoomEvent>(player, eventStream));
         }
@@ -92,8 +89,6 @@ public class RoomController {
         Room.JoinToRoomResponse response = Room.JoinToRoomResponse.newBuilder().setNumberPlayersToStart(numberPlayersToStart).addAllPlayer(getRoomPlayers()).setSuccess(true).build();
         Room.RoomEvent responseEvent = Room.RoomEvent.newBuilder().setJoinToRoomResponse(response).build();
         eventStream.onNext(responseEvent);
-        System.out.println("TEST CONN3");
-
         return true;
     }
 

@@ -15,8 +15,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class RoomService extends RoomServiceGrpc.RoomServiceImplBase {
-    int w = 15;
-    int h = 20;
+    int w = 10;
+    int h = 10;
     private final Set<String> createdRooms = new TreeSet<>();
     private final Set<String> publicRooms = new TreeSet();
     private final HashMap<String, RoomController> rooms = new HashMap<>();

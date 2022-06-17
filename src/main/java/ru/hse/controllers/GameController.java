@@ -142,11 +142,8 @@ public class GameController implements Runnable {
 
             makeStep();
 
-            for (int i = 0; i < users.size(); i++) {
-                User user = users.get(i);
-//                synchronized (user) {
-                synchronized (users){
-                    System.out.println("Send state to " + user.getLogin());
+            synchronized (users) {
+                for (var user: users) {
                     sendEventToPlayer(user.getLogin(), getGameStateForPlayer(user.getLogin()));
 //                }
                 }
@@ -162,33 +159,35 @@ public class GameController implements Runnable {
                 running = false;
             }
         }
+
+        System.out.println("Game Finished");
         onFinish.run();
         // отослать всем responce, что игра завершилась
     }
 
-    private Game.GameEvent getGameStateForPlayer(String login){
-        GameObject.GameStateResponse.Builder gameStateResponce = GameObject.GameStateResponse.newBuilder();
+    private Game.GameEvent getGameStateForPlayer(String login) {
+        GameObject.GameStateResponse.Builder gameStateResponse = GameObject.GameStateResponse.newBuilder();
 
-        if(running) {
-            gameStateResponce.setGameState(GameObject.GameStateResponse.GameState.IN_PROGRESS);
+        if (running) {
+            gameStateResponse.setGameState(GameObject.GameStateResponse.GameState.IN_PROGRESS);
         } else {
-            gameStateResponce.setGameState(GameObject.GameStateResponse.GameState.FINISHED);
+            gameStateResponse.setGameState(GameObject.GameStateResponse.GameState.FINISHED);
         }
 
-        for(User user : users) {
+        for (User user : users) {
             if(user.getLogin().equals(login)) {
-                gameStateResponce.setPlayer(user.toProtobufPlayer());
+                gameStateResponse.setPlayer(user.toProtobufPlayer());
             }
         }
 
-        gameStateResponce.setGameMap(gameMap.toProtobufForPlayer(login));
+        gameStateResponse.setGameMap(gameMap.toProtobufForPlayer(login));
 
         for(User user : users) {
-            gameStateResponce.addGamePlayerInfo(user.toProtobufGamePlayerInfo());
+            gameStateResponse.addGamePlayerInfo(user.toProtobufGamePlayerInfo());
         }
 
         Game.GameEvent.Builder gameEvent = Game.GameEvent.newBuilder();
-        gameEvent.setGameStateResponse(gameStateResponce.build());
+        gameEvent.setGameStateResponse(gameStateResponse.build());
 
         return gameEvent.build();
     }
@@ -234,7 +233,7 @@ public class GameController implements Runnable {
         synchronized (joinedPlayers) {
             for (var playerWithIO: joinedPlayers) {
                 if (playerWithIO.getPlayer().getLogin().equals(playerLogin)) {
-                    System.out.println("Sent event to player(sendEventToPLayer): " + playerLogin);
+//                    System.out.println("Sent " + event.getEventCase() + " to player: " + playerLogin);
                     playerWithIO.getEventStream().onNext(event);
                     return true;
                 }

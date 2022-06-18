@@ -99,8 +99,8 @@ public class GeneratorGameMap {
                 int x, y;
 
                 while (true) {
-                    x = new Random().nextInt(height);       // TODO: тут нужно посмотреть, может не стоит создавать
-                    y = new Random().nextInt(width);        // много элементов
+                    y = new Random().nextInt(height);       // TODO: тут нужно посмотреть, может не стоит создавать
+                    x = new Random().nextInt(width);        // много элементов
                     if(gameMapNeedForCreate.get(y).get(x).isFree()){
                         break;
                     }
@@ -168,8 +168,8 @@ public class GeneratorGameMap {
         // или минимальное количество ферм ещё не было установлено
         while (countLauches > 0 || minFarms > 0) {
             countLauches--;
-            int x = new Random().nextInt(height);
-            int y = new Random().nextInt(width);
+            int y = new Random().nextInt(height);
+            int x = new Random().nextInt(width);
             boolean isFarm = tryToAddFarm(x, y);
             if(isFarm){
                 minFarms--;
@@ -202,8 +202,8 @@ public class GeneratorGameMap {
             int countLauches = (int) (height * width * numberOfTriggerToCreateWall);
             while (countLauches > 0) {
                 countLauches--;
-                int x = new Random().nextInt(height);     // TODO: тут нужно посмотреть, может стоит один создать
-                int y = new Random().nextInt(width);  // [0; rows) и [0; columns)
+                int y = new Random().nextInt(height);     // TODO: тут нужно посмотреть, может стоит один создать
+                int x = new Random().nextInt(width);  // [0; rows) и [0; columns)
                 tryToAddWallsInDifferentDirections(x, y);
             }
 
@@ -224,8 +224,8 @@ public class GeneratorGameMap {
                         int y = v.getY();
                         int changeX = changeCoordinate.get(i).getX();
                         int changeY = changeCoordinate.get(i).getY();
-                        if(0 <= x + changeX && x + changeX < height &&
-                           0 <= y + changeY && y + changeY < width  &&
+                        if(0 <= x + changeX && x + changeX < width &&
+                           0 <= y + changeY && y + changeY < height  &&
                             canMoveThroughCell(x + changeX, y + changeY)){
                             queue.addLast(new Pair(x + changeX, y + changeY));
                         }
@@ -271,7 +271,7 @@ public class GeneratorGameMap {
             for(int i = 0; i < changeCoordinate.size(); i++){
                 int changeX = changeCoordinate.get(i).getX();
                 int changeY = changeCoordinate.get(i).getY();
-                if(0 <= x + changeX && x + changeX < height && 0 <= y + changeY && y + changeY < width){
+                if(0 <= x + changeX && x + changeX < width && 0 <= y + changeY && y + changeY < height){
                     if (Math.random() < factorForWall) {
                         tryToAddWallsInDifferentDirections(x + changeX, y + changeY);
                     }

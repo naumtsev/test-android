@@ -114,6 +114,7 @@ public class GameMap {
             if(startUser.equals(endBlock.getUser())){
                 if(endBlock instanceof CastleBlock){
                     capturedCastle(startUser, endUser);
+                    gameMap.get(end.getY()).set(end.getX(), new FarmBlock(end.getX(), end.getY(), endBlock.getCountArmy(), startUser));
                 }
                 return true;
             } else {
@@ -241,7 +242,7 @@ public class GameMap {
             int newX = x + changeX;
             int newY = y + changeY;
 //            Block block = gameMap.get(newX).get(newY);
-            if(0 <= newX && newX < height && 0 <= newY && newY < width){
+            if(0 <= newX && newX < width && 0 <= newY && newY < height){
                 Block block = gameMap.get(newY).get(newX);
                 if(block instanceof CapturedBlock){
                     User user = (((CapturedBlock)block).getUser());

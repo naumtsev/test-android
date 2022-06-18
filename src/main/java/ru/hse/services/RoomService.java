@@ -16,7 +16,8 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class RoomService extends RoomServiceGrpc.RoomServiceImplBase {
     int w = 10;
-    int h = 10;
+    int playersToStart = 3;
+    int h = 15;
     private final Set<String> createdRooms = new TreeSet<>();
     private final Set<String> publicRooms = new TreeSet();
     private final HashMap<String, RoomController> rooms = new HashMap<>();
@@ -111,7 +112,7 @@ public class RoomService extends RoomServiceGrpc.RoomServiceImplBase {
 
     private void createRoom(String roomName, boolean roomIsPublic) {
         createdRooms.add(roomName);
-        rooms.put(roomName, new RoomController(roomName, 2));
+        rooms.put(roomName, new RoomController(roomName, playersToStart));
 
         if (roomIsPublic) {
             publicRooms.add(roomName);

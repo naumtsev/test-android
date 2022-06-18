@@ -101,18 +101,18 @@ public class GeneratorGameMap {
                 while (true) {
                     x = new Random().nextInt(height);       // TODO: тут нужно посмотреть, может не стоит создавать
                     y = new Random().nextInt(width);        // много элементов
-                    if(gameMapNeedForCreate.get(x).get(y).isFree()){
+                    if(gameMapNeedForCreate.get(y).get(x).isFree()){
                         break;
                     }
                 }
 
                 castles.add(new Pair(x, y));
-                gameMapNeedForCreate.get(x).get(y).setCellType(Cell.Type.Castle);
+                gameMapNeedForCreate.get(y).get(x).setCellType(Cell.Type.Castle);
             }
 
             mapsCastels.add(castles);
             for(Pair castle : castles){
-                gameMapNeedForCreate.get(castle.getX()).get(castle.getY()).setCellType(Cell.Type.Neutral);
+                gameMapNeedForCreate.get(castle.getY()).get(castle.getX()).setCellType(Cell.Type.Neutral);
             }
         }
         // 3) - 4)
@@ -145,7 +145,7 @@ public class GeneratorGameMap {
         for (int i = 0; i < countCastels; i++) {
             int x = mapsCastels.get(index).get(i).getX();
             int y = mapsCastels.get(index).get(i).getY();
-            gameMapNeedForCreate.get(x).get(y).setCellType(Cell.Type.Castle);
+            gameMapNeedForCreate.get(y).get(x).setCellType(Cell.Type.Castle);
 
             System.out.println("X = " + x + "\nY = " + y + "\n");
         }
@@ -191,8 +191,8 @@ public class GeneratorGameMap {
 //            return true;
 //        }
 
-        if (gameMapNeedForCreate.get(x).get(y).isFree()) {
-            gameMapNeedForCreate.get(x).get(y).setCellType(Cell.Type.Farm);
+        if (gameMapNeedForCreate.get(y).get(x).isFree()) {
+            gameMapNeedForCreate.get(y).get(x).setCellType(Cell.Type.Farm);
             return true;
         }
         return false;
@@ -217,8 +217,8 @@ public class GeneratorGameMap {
 
             while (!queue.isEmpty()) {
                 Pair v = queue.removeFirst();
-                if (visited.get(v.getX()).get(v.getY()) == 0) {
-                    visited.get(v.getX()).set(v.getY(), 1);
+                if (visited.get(v.getY()).get(v.getX()) == 0) {
+                    visited.get(v.getY()).set(v.getX(), 1);
                     for(int i = 0; i < changeCoordinate.size(); i++){
                         int x = v.getX();
                         int y = v.getY();
@@ -235,7 +235,7 @@ public class GeneratorGameMap {
 
             boolean isBreak = true;
             for (int i = 0; i < countCastels; i++) {
-                if (visited.get(coordinateCastlesInMap.get(i).getX()).get(coordinateCastlesInMap.get(i).getY()) == 0) {
+                if (visited.get(coordinateCastlesInMap.get(i).getY()).get(coordinateCastlesInMap.get(i).getX()) == 0) {
                     isBreak = false;
                     break;
                 }
@@ -252,22 +252,22 @@ public class GeneratorGameMap {
             }
 
             for (int i = 0; i < walls.size(); i++) {
-                gameMapNeedForCreate.get(walls.get(i).getX()).get(walls.get(i).getY()).setCellType(Cell.Type.Neutral);
+                gameMapNeedForCreate.get(walls.get(i).getY()).get(walls.get(i).getX()).setCellType(Cell.Type.Neutral);
             }
             walls.clear();
         }
     }
 
     private boolean canMoveThroughCell(int x, int y) {
-        return (gameMapNeedForCreate.get(x).get(y).getType().equals(Cell.Type.Neutral)
-                || gameMapNeedForCreate.get(x).get(y).getType().equals(Cell.Type.Farm)
-                || gameMapNeedForCreate.get(x).get(y).getType().equals(Cell.Type.Castle));
+        return (gameMapNeedForCreate.get(y).get(x).getType().equals(Cell.Type.Neutral)
+                || gameMapNeedForCreate.get(y).get(x).getType().equals(Cell.Type.Farm)
+                || gameMapNeedForCreate.get(y).get(x).getType().equals(Cell.Type.Castle));
     }
 
     private void tryToAddWallsInDifferentDirections(int x, int y) {
-        if (gameMapNeedForCreate.get(x).get(y).isFree()) {
+        if (gameMapNeedForCreate.get(y).get(x).isFree()) {
             walls.add(new Pair(x, y));
-            gameMapNeedForCreate.get(x).get(y).setCellType(Cell.Type.Wall);
+            gameMapNeedForCreate.get(y).get(x).setCellType(Cell.Type.Wall);
             for(int i = 0; i < changeCoordinate.size(); i++){
                 int changeX = changeCoordinate.get(i).getX();
                 int changeY = changeCoordinate.get(i).getY();
@@ -284,24 +284,24 @@ public class GeneratorGameMap {
     private ArrayList<ArrayList<Block>> createMap(){
         ArrayList<ArrayList<Block>> gameMap = new ArrayList<>();
 
-        for(int x = 0; x < height; x++){
+        for(int y = 0; y < height; y++){
             gameMap.add(new ArrayList<>());
-            for(int y = 0; y < width; y++){
-                Cell.Type type = gameMapNeedForCreate.get(x).get(y).getType();
+            for(int x = 0; x < width; x++){
+                Cell.Type type = gameMapNeedForCreate.get(y).get(x).getType();
                 if(type.equals(Cell.Type.Neutral)){
-                    gameMap.get(x).add(new SimpleDrawableBlock(x, y));
+                    gameMap.get(y).add(new SimpleDrawableBlock(x, y));
                     continue;
                 }
                 if(type.equals(Cell.Type.Wall)){
-                    gameMap.get(x).add(new MountainBlock(x, y));
+                    gameMap.get(y).add(new MountainBlock(x, y));
                     continue;
                 }
                 if(type.equals(Cell.Type.Farm)){
-                    gameMap.get(x).add(new FarmBlock(x, y));
+                    gameMap.get(y).add(new FarmBlock(x, y));
                     continue;
                 }
                 if(type.equals(Cell.Type.Castle)){
-                    gameMap.get(x).add(new CastleBlock(x, y));
+                    gameMap.get(y).add(new CastleBlock(x, y));
                 }
             }
         }

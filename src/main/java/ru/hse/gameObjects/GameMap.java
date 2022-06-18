@@ -11,7 +11,7 @@ import java.util.Arrays;
 public class GameMap {
     private final ArrayList<ArrayList<Block>> gameMap;
     private final ArrayList<User> users;
-    private ArrayList<Pair> castlesInMap;
+    private ArrayList<Pair> castlesInMap = new ArrayList<>();
     private final int height;
     private final int width;
     private final int countCastels;
@@ -32,6 +32,13 @@ public class GameMap {
         GeneratorGameMap generatorGameMap = new GeneratorGameMap();
         gameMap = generatorGameMap.generateGameMap(height, width, users.size());
         castlesInMap = generatorGameMap.getCoordinateCastlesInMap();
+//        for(int y = 0; y < height; y++){
+//            for(int x = 0; x < width; x++){
+//                if(gameMap.get(y).get(x) instanceof CastleBlock){
+//                    castlesInMap.add(new Pair(x, y));
+//                }
+//            }
+//        }
 
         giveCastlesToUsers();
     }
@@ -53,6 +60,10 @@ public class GameMap {
         return countAliveCastels;
     }
 
+    public ArrayList<Pair> getCastlesInMap(){
+        return castlesInMap;
+    }
+
     public ArrayList<User> getUsers(){
         return users;
     }
@@ -61,7 +72,8 @@ public class GameMap {
     private void giveCastlesToUsers(){
         int i = 0;
         for(Pair castle : castlesInMap){
-            ((CastleBlock)gameMap.get(castle.getX()).get(castle.getY())).setUser(users.get(i++));
+            ((CastleBlock)gameMap.get(castle.getY()).get(castle.getX())).setUser(users.get(i++));
+            System.out.println("New castle: x = " + castle.getX() + "; y = " + castle.getY());
         }
     }
 
@@ -71,16 +83,22 @@ public class GameMap {
 
     // attack(start, end, is50);
     // true - если получилось захватить клетку, иначе false
-    public synchronized boolean attack(Pair start, Pair end, boolean is50){
+    public synchronized boolean attack(User user, Pair start, Pair end, boolean is50){
         if(!examinateCorrectAttack(start, end)){
             return false;
         }
 
-        CapturedBlock startBlock = (CapturedBlock) gameMap.get(start.getX()).get(start.getY());
-        CapturedBlock endBlock   = (CapturedBlock) gameMap.get(end.getX()).get(end.getY());
+        CapturedBlock startBlock = (CapturedBlock) gameMap.get(start.getY()).get(start.getX());
+        CapturedBlock endBlock   = (CapturedBlock) gameMap.get(end.getY()).get(end.getX());
 
         User startUser = startBlock.getUser();
+        System.out.println("startUser: " + startUser.getLogin());
         User endUser = endBlock.getUser();
+//        System.out.println("endUser: " + endUser.getLogin());
+
+        if(!user.getLogin().equals(startUser.getLogin())){
+            return false;
+        }
 
         if(startBlock.getCountArmy() < 2){
             return false;
@@ -105,15 +123,18 @@ public class GameMap {
     }
 
     private boolean examinateCorrectAttack(Pair start, Pair end){
-        Block startBlock = gameMap.get(start.getX()).get(start.getY());
-        Block endBlock = gameMap.get(end.getX()).get(end.getY());
+        Block startBlock = gameMap.get(start.getY()).get(start.getX());
+        Block endBlock = gameMap.get(end.getY()).get(end.getX());
         if(!(startBlock instanceof CapturedBlock)){
+            System.out.println("Block in Walls");
             return false;
         }
-        if(((CapturedBlock)startBlock).getUser() != null){
+        if(((CapturedBlock)startBlock).getUser() == null){
+            System.out.println("User = null");
             return false;
         }
         if(!(endBlock instanceof CapturedBlock)){
+            System.out.println("End block is wall");
             return false;
         }
 
@@ -125,17 +146,19 @@ public class GameMap {
         captured.userDead();
         countAliveCastels--;
 
-        for(int x = 0; x < height; x++){
-            for(int y = 0; y < width; y++){
-                if(gameMap.get(x).get(y) instanceof CapturedBlock){
-                    CapturedBlock block = (CapturedBlock) gameMap.get(x).get(y);
-                    if(invader != null) {
-                        invader.addOrDeleteArmy(block.getCountArmy());
-                    }
-                    if(block instanceof CastleBlock){
-                        gameMap.get(x).set(y, new FarmBlock(x, y, block.getCountArmy(), invader));
-                    } else {
-                        block.setUser(invader);
+        for(int y = 0; y < height; y++){
+            for(int x = 0; x < width; x++){
+                if(gameMap.get(y).get(x) instanceof CapturedBlock){
+                    CapturedBlock block = (CapturedBlock) gameMap.get(y).get(x);
+                    if(captured == block.getUser()) {
+                        if (invader != null) {
+                            invader.addOrDeleteArmy(block.getCountArmy());
+                        }
+                        if (block instanceof CastleBlock) {
+                            gameMap.get(y).set(x, new FarmBlock(x, y, block.getCountArmy(), invader));
+                        } else {
+                            block.setUser(invader);
+                        }
                     }
                 }
             }
@@ -149,19 +172,19 @@ public class GameMap {
         ++countCompletedTickets;
         if(countCompletedTickets == numberOfTicksBeforeUpdate){
             countCompletedTickets = 0;
-            for(int x = 0; x < height; x++){
-                for(int y = 0; y < width; y++){
-                    if(gameMap.get(x).get(y) instanceof CapturedBlock) {
-                        ((CapturedBlock)gameMap.get(x).get(y)).nextTick();
+            for(int y = 0; y < height; y++){
+                for(int x = 0; x < width; x++){
+                    if(gameMap.get(y).get(x) instanceof CapturedBlock) {
+                        ((CapturedBlock)gameMap.get(y).get(x)).nextTick();
                     }
                 }
             }
         } else {
             // обновляем только для ферм и королевств
-            for(int x = 0; x < height; x++){
-                for(int y = 0; y < width; y++){
-                    if(gameMap.get(x).get(y) instanceof FarmBlock || gameMap.get(x).get(y) instanceof CastleBlock) {
-                        ((CapturedBlock)gameMap.get(x).get(y)).nextTick();
+            for(int y = 0; y < height; y++){
+                for(int x = 0; x < width; x++){
+                    if(gameMap.get(y).get(x) instanceof FarmBlock || gameMap.get(y).get(x) instanceof CastleBlock) {
+                        ((CapturedBlock)gameMap.get(y).get(x)).nextTick();
                     }
                 }
             }
@@ -174,9 +197,9 @@ public class GameMap {
         protobufGameMap.setWidth(width);
 
         GameObject.BlockList.Builder blockList = GameObject.BlockList.newBuilder();
-        for(int x = 0; x < protobufGameMap.getHeight(); x++){
-            for(int y = 0; y < protobufGameMap.getWidth(); y++){
-                Block blockInMap = gameMap.get(x).get(y);
+        for(int y = 0; y < protobufGameMap.getHeight(); y++){
+            for(int x = 0; x < protobufGameMap.getWidth(); x++){
+                Block blockInMap = gameMap.get(y).get(x);
 
                 boolean hidden = blockIsHiddenForPlayer(x, y, login);
 
@@ -219,7 +242,7 @@ public class GameMap {
             int newY = y + changeY;
 //            Block block = gameMap.get(newX).get(newY);
             if(0 <= newX && newX < height && 0 <= newY && newY < width){
-                Block block = gameMap.get(newX).get(newY);
+                Block block = gameMap.get(newY).get(newX);
                 if(block instanceof CapturedBlock){
                     User user = (((CapturedBlock)block).getUser());
                     if(user != null && user.getLogin().equals(login)){

@@ -7,6 +7,8 @@ import ru.hse.GameObject;
 import ru.hse.gameObjects.Attack;
 import ru.hse.gameObjects.GameMap;
 import ru.hse.gameObjects.User;
+import ru.hse.gameObjects.generateGameMap.Block;
+import ru.hse.gameObjects.generateGameMap.CapturedBlock;
 import ru.hse.objects.Pair;
 import ru.hse.objects.PlayerWithIO;
 
@@ -46,6 +48,9 @@ public class GameController implements Runnable {
     }
 
     public void addAttack(GameObject.Player player, Game.BlockCoordinate start, Game.BlockCoordinate end, boolean is50) {
+        System.out.println("Get attack: \n  "
+                        + "x_start=" + start.getX() + "; y_start=" + start.getY() + "\n  "
+                        + "x_end=" + end.getX() + "; y_end=" + end.getY());
         Pair startPair = new Pair(start.getX(), start.getY());
         Pair endPair = new Pair(end.getX(), end.getY());
 
@@ -53,9 +58,7 @@ public class GameController implements Runnable {
             User user = users.get(i);
             if (user.isAlive() && user.getLogin().equals(player.getLogin())) {
                 synchronized (users) {
-//                    synchronized (users.get(i)) {
                         user.addStep(startPair, endPair, is50);
-//                    }
                 }
             }
         }
@@ -194,7 +197,24 @@ public class GameController implements Runnable {
 
 
     private void makeStep(){
+        for(var castles : gameMap.getCastlesInMap()){
+            System.out.println("x = " + castles.getX() + "; y = " + castles.getY() + "\n");
+        }
+
         gameMap.nextTick();
+
+        ArrayList<ArrayList<Block>> logGameMap = gameMap.getGameMap();
+        for(int y = 0; y < gameMap.getHeight(); y++){
+            for(int x = 0; x < gameMap.getWidth(); x++){
+                Block block = logGameMap.get(y).get(x);
+                if(block instanceof CapturedBlock){
+                    System.out.print(((CapturedBlock) block).getCountArmy() + "   ");
+                } else {
+                    System.out.print(0 + "   ");
+                }
+            }
+            System.out.println();
+        }
 
 
 //        users.forEach(this::makeStepForPlayer);
@@ -207,19 +227,22 @@ public class GameController implements Runnable {
     }
 
     private void makeStepForPlayer(User user){
-//        synchronized (user) { // ругается
-            while ((user.isAlive() && user.haveStep())) {
-                Attack attack = user.removeStep();
-                if (!gameMap.attack(attack.getStart(), attack.getEnd(), attack.isIs50())) {
-                    Pair endPosition = attack.getEnd();
-                    while (user.haveStep() && endPosition.equals(user.getStep().getStart())) {
-                        endPosition = user.removeStep().getEnd();
-                    }
-                } else {
-                    break;
+        while ((user.isAlive() && user.haveStep())) {
+            Attack attack = user.removeStep();
+            System.out.println("Player " + user.getLogin() + " make step!");
+            System.out.println("Step: \n  "
+                    + "x_start=" + attack.getStart().getX() + "; y_start=" + attack.getStart().getY() + "\n  "
+                    + "x_end=" + attack.getEnd().getX() + "; y_end=" + attack.getEnd().getY());
+            if (!gameMap.attack(user, attack.getStart(), attack.getEnd(), attack.isIs50())) {
+                System.out.println("Attack false!");
+                Pair endPosition = attack.getEnd();
+                while (user.haveStep() && endPosition.equals(user.getStep().getStart())) {
+                    endPosition = user.removeStep().getEnd();
                 }
+            } else {
+                break;
             }
-//        }
+        }
     }
     public void broadcast(Game.GameEvent event) {
         synchronized (joinedPlayers) {

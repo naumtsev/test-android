@@ -24,7 +24,7 @@ public class CapturedBlock extends Block {
         countArmy = newCountArmy;
     }
     public void addOrDeleteArmy(User invader, int otherArmy){
-        if(invader.equals(user)){
+        if(!isFree() && invader.equals(user)){
             countArmy += otherArmy;
         } else {
             if(countArmy < otherArmy){
@@ -44,6 +44,7 @@ public class CapturedBlock extends Block {
                 countArmy -= otherArmy;
             }
         }
+
     }
 
     public boolean isFree(){
@@ -57,6 +58,7 @@ public class CapturedBlock extends Block {
     public void nextTick(){
         if(user != null) {
             ++countArmy;
+            user.addOrDeleteArmy(1);
         }
     }
 

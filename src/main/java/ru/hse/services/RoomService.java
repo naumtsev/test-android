@@ -3,6 +3,7 @@ package ru.hse.services;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
+import ru.hse.GameConfig;
 import ru.hse.GameObject;
 import ru.hse.Room;
 import ru.hse.RoomServiceGrpc;
@@ -16,7 +17,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class RoomService extends RoomServiceGrpc.RoomServiceImplBase {
     int w = 10;
-    int playersToStart = 3;
     int h = 15;
     private final Set<String> createdRooms = new TreeSet<>();
     private final Set<String> publicRooms = new TreeSet();
@@ -112,7 +112,7 @@ public class RoomService extends RoomServiceGrpc.RoomServiceImplBase {
 
     private void createRoom(String roomName, boolean roomIsPublic) {
         createdRooms.add(roomName);
-        rooms.put(roomName, new RoomController(roomName, playersToStart));
+        rooms.put(roomName, new RoomController(roomName, GameConfig.playersToStart));
 
         if (roomIsPublic) {
             publicRooms.add(roomName);

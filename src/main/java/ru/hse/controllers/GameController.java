@@ -155,14 +155,14 @@ public class GameController implements Runnable {
             } catch (Exception ignored) {
             }
 
-            if (gameMap.getCountAliveCastels() <= 1 || joinedPlayers.size() < 2) {
+            if (gameMap.getCountAliveCastels() <= 1 || joinedPlayers.size() <= 1) {
                 running = false;
             }
         }
 
         System.out.println("Game Finished");
         onFinish.run();
-        // отослать всем responce, что игра завершилась
+        // отослать всем response, что игра завершилась
     }
 
     private Game.GameEvent getGameStateForPlayer(String login) {

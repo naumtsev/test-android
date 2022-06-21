@@ -3,6 +3,7 @@ package ru.hse.controllers;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import ru.hse.Game;
+import ru.hse.GameConfig;
 import ru.hse.GameObject;
 import ru.hse.gameObjects.Attack;
 import ru.hse.gameObjects.GameMap;
@@ -48,9 +49,6 @@ public class GameController implements Runnable {
     }
 
     public void addAttack(GameObject.Player player, Game.BlockCoordinate start, Game.BlockCoordinate end, boolean is50) {
-        System.out.println("Get attack: \n  "
-                        + "x_start=" + start.getX() + "; y_start=" + start.getY() + "\n  "
-                        + "x_end=" + end.getX() + "; y_end=" + end.getY());
         Pair startPair = new Pair(start.getX(), start.getY());
         Pair endPair = new Pair(end.getX(), end.getY());
 
@@ -137,7 +135,7 @@ public class GameController implements Runnable {
     public void run(){
         running = true;
         try {
-            Thread.sleep(5000);
+            Thread.sleep(GameConfig.waitingStartTime);
         } catch (InterruptedException ignored) {
         }
 
@@ -153,9 +151,8 @@ public class GameController implements Runnable {
             }
 
             try {
-                Thread.sleep(500);
+                Thread.sleep(GameConfig.tickTime);
             } catch (Exception ignored) {
-
             }
 
             if (gameMap.getCountAliveCastels() <= 1 || joinedPlayers.size() < 2) {
@@ -229,12 +226,7 @@ public class GameController implements Runnable {
     private void makeStepForPlayer(User user){
         while ((user.isAlive() && user.haveStep())) {
             Attack attack = user.removeStep();
-            System.out.println("Player " + user.getLogin() + " make step!");
-            System.out.println("Step: \n  "
-                    + "x_start=" + attack.getStart().getX() + "; y_start=" + attack.getStart().getY() + "\n  "
-                    + "x_end=" + attack.getEnd().getX() + "; y_end=" + attack.getEnd().getY());
             if (!gameMap.attack(user, attack.getStart(), attack.getEnd(), attack.isIs50())) {
-                System.out.println("Attack false!");
                 Pair endPosition = attack.getEnd();
                 while (user.haveStep() && endPosition.equals(user.getStep().getStart())) {
                     endPosition = user.removeStep().getEnd();
@@ -256,7 +248,6 @@ public class GameController implements Runnable {
         synchronized (joinedPlayers) {
             for (var playerWithIO: joinedPlayers) {
                 if (playerWithIO.getPlayer().getLogin().equals(playerLogin)) {
-//                    System.out.println("Sent " + event.getEventCase() + " to player: " + playerLogin);
                     playerWithIO.getEventStream().onNext(event);
                     return true;
                 }

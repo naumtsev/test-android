@@ -13,10 +13,7 @@ import ru.hse.gameObjects.generateGameMap.CapturedBlock;
 import ru.hse.objects.Pair;
 import ru.hse.objects.PlayerWithIO;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class GameController implements Runnable {
     boolean running = false;
@@ -48,7 +45,7 @@ public class GameController implements Runnable {
         return gameMap;
     }
 
-    public void addAttack(GameObject.Player player, Game.BlockCoordinate start, Game.BlockCoordinate end, boolean is50) {
+    public void addAttack(GameObject.Player player, GameObject.BlockCoordinate start, GameObject.BlockCoordinate end, boolean is50) {
         Pair startPair = new Pair(start.getX(), start.getY());
         Pair endPair = new Pair(end.getX(), end.getY());
 
@@ -57,6 +54,17 @@ public class GameController implements Runnable {
             if (user.isAlive() && user.getLogin().equals(player.getLogin())) {
                 synchronized (users) {
                         user.addStep(startPair, endPair, is50);
+                }
+            }
+        }
+    }
+
+    public void deleteAttack(String playerLogin) {
+        for (int i = 0; i < users.size(); i++) {
+            User user = users.get(i);
+            if (user.isAlive() && user.getLogin().equals(playerLogin)) {
+                synchronized (users) {
+                    user.deleteStep();
                 }
             }
         }
@@ -141,12 +149,26 @@ public class GameController implements Runnable {
 
         while (running) {
 
+            HashSet<String> nameAliveUsers = new HashSet<>();
+            for(User user : users){
+                if(user.isAlive()){
+                    nameAliveUsers.add(user.getLogin());
+                }
+            }
+
             makeStep();
 
             synchronized (users) {
                 for (var user: users) {
                     sendEventToPlayer(user.getLogin(), getGameStateForPlayer(user.getLogin()));
-//                }
+                }
+            }
+
+            for(User user : users){
+                if(!user.isAlive() && nameAliveUsers.contains(user.getLogin())){
+                    finishEventForPlayer(user.getLogin(), nameAliveUsers.size());
+                    disconnectPlayer(user.getLogin(), false);
+                    break;
                 }
             }
 
@@ -160,9 +182,35 @@ public class GameController implements Runnable {
             }
         }
 
+        // заканчиваем игру для последнего игрока
+        for(User user : users){
+            if(user.isAlive()){
+                finishEventForPlayer(user.getLogin(), 1);
+                disconnectPlayer(user.getLogin(), false);
+            }
+        }
+
         System.out.println("Game Finished");
         onFinish.run();
-        // отослать всем response, что игра завершилась
+    }
+
+    public void getMovesForPlayer(String login){
+        Game.MovesForPlayers.Builder movesForPlayers = Game.MovesForPlayers.newBuilder();
+
+        synchronized (users) {
+            for (User user : users) {
+                if (user.getLogin().equals(login)) {
+                    for (Attack attack : user.getSteps()) {
+                        movesForPlayers.addPlayerMove(attack.toProtobufMove());
+                    }
+                }
+            }
+        }
+
+        Game.GameEvent.Builder gameEvent = Game.GameEvent.newBuilder();
+        gameEvent.setMovesForPlayers(movesForPlayers.build());
+
+        sendEventToPlayer(login, gameEvent.build());
     }
 
     private Game.GameEvent getGameStateForPlayer(String login) {
@@ -184,6 +232,14 @@ public class GameController implements Runnable {
 
         for(User user : users) {
             gameStateResponse.addGamePlayerInfo(user.toProtobufGamePlayerInfo());
+        }
+
+        for (User user : users) {
+            if(user.getLogin().equals(login)) {
+                for(Attack attack : user.getSteps()) {
+                    gameStateResponse.addPlayerMove(attack.toProtobufMove());
+                }
+            }
         }
 
         Game.GameEvent.Builder gameEvent = Game.GameEvent.newBuilder();
@@ -215,12 +271,24 @@ public class GameController implements Runnable {
 
 
 //        users.forEach(this::makeStepForPlayer);
-        for(int i = 0; i < users.size(); i++){
+        for (int i = 0; i < users.size(); i++) {
             User user = users.get(i);
             synchronized (users.get(i)) {
                 makeStepForPlayer(user);
             }
         }
+
+    }
+
+    public void finishEventForPlayer(String login, Integer result) {
+        Game.GameFinishedEvent.Builder gameStateResponse = Game.GameFinishedEvent.newBuilder();
+
+        gameStateResponse.setReason("You take " + result.toString() + " place!");
+
+        Game.GameEvent.Builder gameEvent = Game.GameEvent.newBuilder();
+        gameEvent.setGameFinishedEvent(gameStateResponse.build());
+
+        sendEventToPlayer(login,gameEvent.build());
     }
 
     private void makeStepForPlayer(User user){

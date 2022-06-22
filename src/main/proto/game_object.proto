@@ -12,6 +12,7 @@ message GameStateResponse {
   Player player = 2;
   GameMap gameMap = 3;
   repeated GamePlayerInfo gamePlayerInfo = 4;
+  repeated Move playerMove = 5;
 }
 
 message GameMap {
@@ -64,4 +65,14 @@ message GamePlayerInfo {
   int32 countArmy = 2;
   int32 countLand = 3;
   bool alive = 4;
+}
+
+message Move {
+  BlockCoordinate start = 1;
+  BlockCoordinate end   = 2;
+}
+
+message BlockCoordinate {
+  int32 x = 1;
+  int32 y = 2;
 }

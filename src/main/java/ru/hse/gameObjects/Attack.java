@@ -1,5 +1,6 @@
 package ru.hse.gameObjects;
 
+import ru.hse.GameObject;
 import ru.hse.objects.Pair;
 
 public class Attack {
@@ -23,5 +24,14 @@ public class Attack {
 
     public boolean isIs50() {
         return is50;
+    }
+
+    public GameObject.Move toProtobufMove(){
+        GameObject.Move.Builder move = GameObject.Move.newBuilder();
+
+        move.setStart(start.toProtobuf());
+        move.setEnd(end.toProtobuf());
+
+        return move.build();
     }
 }

@@ -1,5 +1,3 @@
-
-
 syntax = "proto3";
 option java_package = "ru.hse";
 
@@ -12,6 +10,7 @@ message GameEvent {
     GameStateResponse gameStateResponse = 1;
     GameFinishedEvent gameFinishedEvent = 2;
     PlayerLostEvent playerLostEvent = 3;
+    MovesForPlayers movesForPlayers = 4;
   }
 }
 
@@ -22,6 +21,11 @@ message JoinToGameRequest {
 
 message GameFinishedEvent {
   string reason = 1;
+  // You take (something) place
+}
+
+message MovesForPlayers {
+  repeated Move playerMove = 1;
 }
 
 message PlayerLostEvent {
@@ -35,13 +39,16 @@ message AttackRequest{
   Player player = 4;
 }
 
+message DeleteLastAttackRequest {
+  string playerLogin = 1;
+}
+
 message SurrenderRequest {
   string playerLogin = 1;
 }
 
-message BlockCoordinate {
-  int32 x = 1;
-  int32 y = 2;
+message MovesRequest {
+  string playerLogin = 1;
 }
 
 message generateGameStateRequest {
@@ -53,5 +60,7 @@ message generateGameStateRequest {
 service GameService {
   rpc joinToGame(JoinToGameRequest) returns (stream GameEvent);
   rpc attackBlock(AttackRequest) returns (google.protobuf.Empty);
+  rpc deleteAttack(DeleteLastAttackRequest) returns (google.protobuf.Empty);
   rpc surrender(SurrenderRequest) returns (google.protobuf.Empty);
+  rpc getMoverForPlayer(MovesRequest) returns (google.protobuf.Empty);
 }

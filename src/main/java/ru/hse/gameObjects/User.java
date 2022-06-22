@@ -73,6 +73,12 @@ public class User {
     public void addStep(Pair start, Pair end, boolean is50){
         steps.addLast(new Attack(start, end, is50));
     }
+
+    public void deleteStep(){
+        if(steps.isEmpty()) {
+            steps.removeLast();
+        }
+    }
     public boolean haveStep(){
         return !steps.isEmpty();
     }
@@ -84,6 +90,9 @@ public class User {
         return steps.removeFirst();
     }
 
+    public LinkedList<Attack> getSteps(){
+        return steps;
+    }
 
     @Override
     public boolean equals(Object o) {

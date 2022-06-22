@@ -10,7 +10,6 @@ message GameEvent {
     GameStateResponse gameStateResponse = 1;
     GameFinishedEvent gameFinishedEvent = 2;
     PlayerLostEvent playerLostEvent = 3;
-    MovesForPlayers movesForPlayers = 4;
   }
 }
 
@@ -24,7 +23,7 @@ message GameFinishedEvent {
   // You take (something) place
 }
 
-message MovesForPlayers {
+message PlayerMovesResponse {
   repeated Move playerMove = 1;
 }
 
@@ -39,7 +38,7 @@ message AttackRequest{
   Player player = 4;
 }
 
-message ClearAttackRequest {
+message ClearAttacksRequest {
   string playerLogin = 1;
 }
 
@@ -59,7 +58,7 @@ message generateGameStateRequest {
 
 service GameService {
   rpc joinToGame(JoinToGameRequest) returns (stream GameEvent);
-  rpc attackBlock(AttackRequest) returns (stream MovesForPlayers);
-  rpc deleteAttack(ClearAttackRequest) returns (stream MovesForPlayers);
-  rpc surrender(SurrenderRequest) returns (MovesForPlayers);
+  rpc attackBlock(AttackRequest) returns (PlayerMovesResponse);
+  rpc clearAttacks(ClearAttacksRequest) returns (PlayerMovesResponse);
+  rpc surrender(SurrenderRequest) returns (google.protobuf.Empty);
 }

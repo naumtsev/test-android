@@ -194,11 +194,11 @@ public class GameController implements Runnable {
         onFinish.run();
     }
 
-    public Game.MovesForPlayers getMovesForPlayer(String login){
-        Game.MovesForPlayers.Builder movesForPlayers = Game.MovesForPlayers.newBuilder();
+    public Game.PlayerMovesResponse getMovesForPlayer(String login){
+        Game.PlayerMovesResponse.Builder movesForPlayers = Game.PlayerMovesResponse.newBuilder();
 
         synchronized (users) {
-            for (User user : users) {
+            for (User user: users) {
                 if (user.getLogin().equals(login)) {
                     for (Attack attack : user.getSteps()) {
                         movesForPlayers.addPlayerMove(attack.toProtobufMove());

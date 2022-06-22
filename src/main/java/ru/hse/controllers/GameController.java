@@ -64,7 +64,7 @@ public class GameController implements Runnable {
             User user = users.get(i);
             if (user.isAlive() && user.getLogin().equals(playerLogin)) {
                 synchronized (users) {
-                    user.deleteStep();
+                    user.clearSteps();
                 }
             }
         }
@@ -194,7 +194,7 @@ public class GameController implements Runnable {
         onFinish.run();
     }
 
-    public void getMovesForPlayer(String login){
+    public Game.MovesForPlayers getMovesForPlayer(String login){
         Game.MovesForPlayers.Builder movesForPlayers = Game.MovesForPlayers.newBuilder();
 
         synchronized (users) {
@@ -207,10 +207,7 @@ public class GameController implements Runnable {
             }
         }
 
-        Game.GameEvent.Builder gameEvent = Game.GameEvent.newBuilder();
-        gameEvent.setMovesForPlayers(movesForPlayers.build());
-
-        sendEventToPlayer(login, gameEvent.build());
+        return movesForPlayers.build();
     }
 
     private Game.GameEvent getGameStateForPlayer(String login) {

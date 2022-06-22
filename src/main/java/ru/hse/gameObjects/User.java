@@ -74,10 +74,8 @@ public class User {
         steps.addLast(new Attack(start, end, is50));
     }
 
-    public void deleteStep(){
-        if(steps.isEmpty()) {
-            steps.removeLast();
-        }
+    public void clearSteps(){
+        steps.clear();
     }
     public boolean haveStep(){
         return !steps.isEmpty();

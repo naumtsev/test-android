@@ -39,7 +39,7 @@ message AttackRequest{
   Player player = 4;
 }
 
-message DeleteLastAttackRequest {
+message ClearAttackRequest {
   string playerLogin = 1;
 }
 
@@ -59,8 +59,7 @@ message generateGameStateRequest {
 
 service GameService {
   rpc joinToGame(JoinToGameRequest) returns (stream GameEvent);
-  rpc attackBlock(AttackRequest) returns (google.protobuf.Empty);
-  rpc deleteAttack(DeleteLastAttackRequest) returns (google.protobuf.Empty);
-  rpc surrender(SurrenderRequest) returns (google.protobuf.Empty);
-  rpc getMoverForPlayer(MovesRequest) returns (google.protobuf.Empty);
+  rpc attackBlock(AttackRequest) returns (stream MovesForPlayers);
+  rpc deleteAttack(ClearAttackRequest) returns (stream MovesForPlayers);
+  rpc surrender(SurrenderRequest) returns (MovesForPlayers);
 }

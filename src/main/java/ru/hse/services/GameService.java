@@ -41,21 +41,22 @@ public class GameService extends GameServiceGrpc.GameServiceImplBase {
         gameController.joinToGame(request, eventStream);
     }
 
-    public void attackBlock(Game.AttackRequest request, StreamObserver<Empty> responseObserver) {
+    public void attackBlock(Game.AttackRequest request, StreamObserver<Game.MovesForPlayers> responseObserver) {
         gameController.addAttack(request.getPlayer(), request.getStart(), request.getEnd(), request.getIs50());
+        responseObserver.onNext(gameController.getMovesForPlayer(request.getPlayer().getLogin()));
+        responseObserver.onCompleted();
     }
 
-    public void deleteAttack(Game.DeleteLastAttackRequest request, StreamObserver<Empty> responseObserver) {
+    public void deleteAttack(Game.ClearAttackRequest request, StreamObserver<Game.MovesForPlayers> responseObserver) {
         gameController.deleteAttack(request.getPlayerLogin());
+        responseObserver.onNext(gameController.getMovesForPlayer(request.getPlayerLogin()));
+        responseObserver.onCompleted();
     }
 
-    public void surrender(Game.SurrenderRequest request, StreamObserver<Empty> responseObserver) {
+    public void surrender(Game.SurrenderRequest request, StreamObserver<Game.MovesForPlayers> responseObserver) {
         gameController.makePlayerLeave(request.getPlayerLogin());
-    }
-
-    @Override
-    public void getMoverForPlayer(Game.MovesRequest request, StreamObserver<Empty> responseObserver) {
-        gameController.getMovesForPlayer(request.getPlayerLogin());
+        responseObserver.onNext(gameController.getMovesForPlayer(request.getPlayerLogin()));
+        responseObserver.onCompleted();
     }
 
     public void onFinish() {

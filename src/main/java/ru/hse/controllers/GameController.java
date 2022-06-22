@@ -248,23 +248,22 @@ public class GameController implements Runnable {
 
     private void makeStep(){
         for(var castles : gameMap.getCastlesInMap()){
-            System.out.println("x = " + castles.getX() + "; y = " + castles.getY() + "\n");
         }
 
         gameMap.nextTick();
 
         ArrayList<ArrayList<Block>> logGameMap = gameMap.getGameMap();
-        for(int y = 0; y < gameMap.getHeight(); y++){
-            for(int x = 0; x < gameMap.getWidth(); x++){
-                Block block = logGameMap.get(y).get(x);
-                if(block instanceof CapturedBlock){
-                    System.out.print(((CapturedBlock) block).getCountArmy() + "   ");
-                } else {
-                    System.out.print(0 + "   ");
-                }
-            }
-            System.out.println();
-        }
+//        for(int y = 0; y < gameMap.getHeight(); y++){
+//            for(int x = 0; x < gameMap.getWidth(); x++){
+//                Block block = logGameMap.get(y).get(x);
+//                if(block instanceof CapturedBlock){
+//                    System.out.print(((CapturedBlock) block).getCountArmy() + "   ");
+//                } else {
+//                    System.out.print(0 + "   ");
+//                }
+//            }
+//            System.out.println();
+//        }
 
 
 //        users.forEach(this::makeStepForPlayer);

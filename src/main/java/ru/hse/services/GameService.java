@@ -47,7 +47,7 @@ public class GameService extends GameServiceGrpc.GameServiceImplBase {
         responseObserver.onCompleted();
     }
 
-    public void deleteAttack(Game.ClearAttacksRequest request, StreamObserver<Game.PlayerMovesResponse> responseObserver) {
+    public void clearAttacks(Game.ClearAttacksRequest request, StreamObserver<Game.PlayerMovesResponse> responseObserver) {
         gameController.deleteAttack(request.getPlayerLogin());
         responseObserver.onNext(gameController.getMovesForPlayer(request.getPlayerLogin()));
         responseObserver.onCompleted();

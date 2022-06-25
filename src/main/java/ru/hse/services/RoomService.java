@@ -56,12 +56,13 @@ public class RoomService extends RoomServiceGrpc.RoomServiceImplBase {
                 List<GameObject.Player> players = roomController.getPlayers();
 
                 ServerBuilder<?> gameServerBuilder = ServerBuilder.forPort(0);
+                gameServerBuilder.intercept(new LoggerInterceptor());
                 gameServerBuilder.keepAliveTime(500, TimeUnit.MILLISECONDS);
                 GameService gameService = new GameService(h, w, players);
                 gameServerBuilder.addService(gameService);
                 Server gameServer = gameServerBuilder.build();
                 gameService.setServer(gameServer);
-
+                
                 try {
                     gameServer.start();
                 } catch (Exception ignored) {

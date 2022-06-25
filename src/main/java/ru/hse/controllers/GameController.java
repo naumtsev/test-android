@@ -49,22 +49,23 @@ public class GameController implements Runnable {
         Pair startPair = new Pair(start.getX(), start.getY());
         Pair endPair = new Pair(end.getX(), end.getY());
 
-        for (int i = 0; i < users.size(); i++) {
-            User user = users.get(i);
+        for (User user : users) {
             if (user.isAlive() && user.getLogin().equals(player.getLogin())) {
                 synchronized (users) {
-                        user.addStep(startPair, endPair, is50);
+                    user.addStep(startPair, endPair, is50);
                 }
             }
         }
     }
 
     public void deleteAttack(String playerLogin) {
-        for (int i = 0; i < users.size(); i++) {
-            User user = users.get(i);
+        System.out.println("Delete attack: user_name = " + playerLogin);
+        for (User user : users) {
             if (user.isAlive() && user.getLogin().equals(playerLogin)) {
                 synchronized (users) {
+                    System.out.println("Count attacks start: " + user.getSteps().size());
                     user.clearSteps();
+                    System.out.println("Count attacks end: " + user.getSteps().size());
                 }
             }
         }
@@ -140,8 +141,7 @@ public class GameController implements Runnable {
     }
 
     public boolean playerIsAlive(String login){
-        for(int i = 0; i < users.size(); i++) {
-            User user = users.get(i);
+        for(User user : users) {
             if(user.getLogin().equals(login)){
                 return user.isAlive();
             }
@@ -169,7 +169,7 @@ public class GameController implements Runnable {
             makeStep();
 
             synchronized (users) {
-                for (var user: users) {
+                for (User user : users) {
                     sendEventToPlayer(user.getLogin(), getGameStateForPlayer(user.getLogin()));
                 }
             }
@@ -257,26 +257,8 @@ public class GameController implements Runnable {
 
 
     private void makeStep(){
-        for(var castles : gameMap.getCastlesInMap()){
-        }
-
         gameMap.nextTick();
 
-        ArrayList<ArrayList<Block>> logGameMap = gameMap.getGameMap();
-//        for(int y = 0; y < gameMap.getHeight(); y++){
-//            for(int x = 0; x < gameMap.getWidth(); x++){
-//                Block block = logGameMap.get(y).get(x);
-//                if(block instanceof CapturedBlock){
-//                    System.out.print(((CapturedBlock) block).getCountArmy() + "   ");
-//                } else {
-//                    System.out.print(0 + "   ");
-//                }
-//            }
-//            System.out.println();
-//        }
-
-
-//        users.forEach(this::makeStepForPlayer);
         for (int i = 0; i < users.size(); i++) {
             User user = users.get(i);
             synchronized (users.get(i)) {
@@ -350,10 +332,6 @@ public class GameController implements Runnable {
                 joinedPlayers.remove(playerWithIO);
             }
         }
-
-        // Send DisconnectEvent
-//        Game.GameEvent event = Game;
-//        broadcast(Room.RoomEvent.newBuilder().setOtherPlayerDisconnectedEvent(event).build());
     }
 
 

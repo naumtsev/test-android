@@ -87,6 +87,11 @@ public class GameController implements Runnable {
             @Override
             public void run() {
                 System.out.println("Player Close");
+                for(User user : users) {
+                    if (user.getLogin().equals(playerLogin)) {
+                        gameMap.capturedCastle(null, user);
+                    }
+                }
                 onPlayerError(playerLogin);
             }
         });
@@ -95,6 +100,11 @@ public class GameController implements Runnable {
             @Override
             public void run() {
                 System.out.println("Player Canceled");
+                for(User user : users) {
+                    if (user.getLogin().equals(playerLogin)) {
+                        gameMap.capturedCastle(null, user);
+                    }
+                }
                 onPlayerError(playerLogin);
             }
         });

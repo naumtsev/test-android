@@ -26,6 +26,12 @@ repositories {
 group 'ru.hse'
 version '1.0-SNAPSHOT'
 
+mainClassName = "ru.hse.App"
+
+jar {
+    manifest.attributes("Main-Class": mainClassName);
+}
+
 dependencies {
     runtimeOnly 'io.grpc:grpc-netty-shaded:1.47.0'
     implementation 'io.grpc:grpc-protobuf:1.47.0'

@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 public class App {
         public static void main(String[] args) throws IOException, InterruptedException {
-                ServerBuilder<?> serverBuilder = ServerBuilder.forPort(8080);
+                ServerBuilder<?> serverBuilder = ServerBuilder.forPort(6433);
                 serverBuilder.keepAliveTime(500, TimeUnit.MILLISECONDS);
 
                 serverBuilder.intercept(new LoggerInterceptor());
